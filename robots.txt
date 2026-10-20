@@ -1,0 +1,10 @@
+# 검색 로봇 안내 — 사이트 전체를 검색에 노출해도 좋아요.
+User-agent: *
+Allow: /
+
+# 사이트 작업용 폴더 · 파일 (방문자용이 아니라서 검색에서 제외)
+Disallow: /tools/
+Disallow: /firebase/
+Disallow: /README.md
+
+Sitemap: https://thezip.netlify.app/sitemap.xml

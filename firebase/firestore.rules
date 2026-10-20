@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 관리자 계정의 UID — '여기에-관리자-UID' 를 바꾸세요.
+    // UID 는 Firebase 콘솔 → Authentication → 사용자 목록의 '사용자 UID' 칸에 있어요.
+    // (사이트에서 로그인했을 때 '관리자로 등록되어 있지 않아요'가 뜨면, UID 가 들어간 규칙을 바로 복사할 수도 있어요)
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid in ['여기에-관리자-UID'];
+    }
+
+    // 사이트 내용: 누구나 읽기, 관리자만 쓰기
+    match /site/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 관리자 모드에서 올린 이미지: 누구나 읽기, 관리자만 쓰기
+    match /images/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 관리자 확인용
+    match /admin/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

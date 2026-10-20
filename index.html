@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>THE ZIP · 더 스파이크 크로스 모음집</title>
+  <meta name="description" content="더 스파이크 크로스 캐릭터 스탯 · 등급 · 스킨, 게임 모드, 재화 획득 방법, 업데이트 트레일러를 한 곳에 모은 비공식 팬 모음집 THE ZIP.">
+  <meta name="keywords" content="더 스파이크 크로스, 더스파이크크로스, The Spike Cross, 더 스파이크, 캐릭터, 등급, 스킨, 공략, 모음집, THE ZIP">
+  <meta name="theme-color" content="#060a14">
+  <meta name="robots" content="index, follow">
+
+  <!-- 검색 사이트 소유 확인 (지우지 마세요) -->
+  <meta name="google-site-verification" content="unO-ghkf6nry9HCai-SiEK1hz-QEWSjKPEy0FFO3ZUU" />
+
+  <!-- 대표 주소 (주소를 바꾸면 아래 og:url · og:image · twitter:image · sitemap.xml · robots.txt 도 같이 바꿔 주세요) -->
+  <link rel="canonical" href="https://thezip.netlify.app/">
+
+  <!-- 링크 공유 미리보기 (카카오톡 · 디스코드 · 페이스북 · X 등) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thezip.netlify.app/">
+  <meta property="og:site_name" content="THE ZIP">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:title" content="THE ZIP · 더 스파이크 크로스 모음집">
+  <meta property="og:description" content="캐릭터 · 스킨 · 게임 모드 · 재화 · 업데이트 정보를 한 곳에서. 더 스파이크 크로스 비공식 팬 모음집">
+  <meta property="og:image" content="https://thezip.netlify.app/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="THE ZIP — 더 스파이크 크로스 모음집">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="THE ZIP · 더 스파이크 크로스 모음집">
+  <meta name="twitter:description" content="캐릭터 · 스킨 · 게임 모드 · 재화 · 업데이트 정보를 한 곳에서.">
+  <meta name="twitter:image" content="https://thezip.netlify.app/images/og-image.jpg">
+
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <!-- 검색 엔진용 사이트 정보 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "THE ZIP",
+    "url": "https://thezip.netlify.app/",
+    "alternateName": ["더 스파이크 크로스 모음집", "THE ZIP 더 스파이크 크로스"],
+    "description": "더 스파이크 크로스 캐릭터 · 스킨 · 게임 모드 · 재화 · 업데이트 정보를 모은 비공식 팬 사이트",
+    "inLanguage": "ko"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <div class="ambient" aria-hidden="true">
+    <span class="orb orb--a"></span>
+    <span class="orb orb--b"></span>
+    <span class="orb orb--c"></span>
+    <span class="grain"></span>
+  </div>
+
+  <!-- ============ 인트로 (환영 화면) ============ -->
+  <div class="intro" id="intro">
+    <div class="intro__fx" aria-hidden="true">
+      <span class="intro__slash intro__slash--a"></span>
+      <span class="intro__slash intro__slash--b"></span>
+      <span class="intro__ring"></span>
+    </div>
+    <div class="intro__inner">
+      <div class="intro__logo" data-logo="intro"></div>
+      <p class="intro__welcome" id="introWelcome"></p>
+      <p class="intro__sub" id="introSub"></p>
+      <button class="btn btn--primary btn--lg intro__enter" id="introEnter" type="button">
+        코트 입장하기
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <button class="intro__skip" id="introSkip" type="button">건너뛰기</button>
+  </div>
+
+  <!-- ============ 상단 메뉴 ============ -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="nav__brand" href="#home" data-logo="nav" aria-label="맨 위로"></a>
+      <nav class="nav__links" id="navLinks" aria-label="주요 메뉴">
+        <a href="#updates" data-section="updates" hidden>업데이트</a>
+        <a href="#about" data-section="about">게임 소개</a>
+        <a href="#characters" data-section="characters">캐릭터</a>
+        <a href="#history" data-section="history" hidden>출시·복각</a>
+        <a href="#modes" data-section="modes">게임 모드</a>
+        <a href="#currency" data-section="currency">재화</a>
+        <a href="#links" data-section="links">공식 채널</a>
+        <span class="nav__indicator" aria-hidden="true"></span>
+      </nav>
+      <button class="nav__toggle" id="navToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ 메인 (히어로) ============ -->
+    <section class="hero" id="home">
+      <div class="hero__bg" aria-hidden="true">
+        <svg class="hero__court" viewBox="0 0 180 90" preserveAspectRatio="none">
+          <rect x="1" y="1" width="178" height="88"/>
+          <line x1="90" y1="1" x2="90" y2="89" class="mid"/>
+          <line x1="60" y1="1" x2="60" y2="89"/>
+          <line x1="120" y1="1" x2="120" y2="89"/>
+        </svg>
+        <span class="hero__slash hero__slash--a"></span>
+        <span class="hero__slash hero__slash--b"></span>
+      </div>
+      <div class="container hero__inner">
+        <p class="hero__eyebrow" data-hero style="--i:0"><span class="dot"></span>THE SPIKE CROSS · 모음집</p>
+        <h1 class="hero__title" data-hero style="--i:1">
+          <span class="sr-only">THE ZIP — 더 스파이크 크로스 모음집</span>
+          <span data-logo="hero" aria-hidden="true"></span>
+        </h1>
+        <p class="hero__tagline" id="heroTagline" data-hero style="--i:2"></p>
+        <div class="hero__cta" data-hero style="--i:3">
+          <a class="btn btn--primary" href="#characters">캐릭터 도감 보기
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn--ghost" href="#about">게임 소개</a>
+        </div>
+        <div class="hero__new hero__update" id="heroUpdate" data-hero style="--i:4" hidden></div>
+        <div class="hero__new" id="heroNew" data-hero style="--i:4" hidden></div>
+        <dl class="hero__stats" id="heroStats" data-hero style="--i:5"></dl>
+        <button class="sec-edit" type="button" data-edit="site">✎ 메인 화면 · 사이트 설정 편집</button>
+      </div>
+      <div class="hero__ball" aria-hidden="true" data-ball></div>
+      <a class="hero__scroll" href="#about" aria-label="아래로 스크롤"><span></span></a>
+    </section>
+
+    <!-- ============ 업데이트 · 트레일러 (등록된 게 없으면 숨김) ============ -->
+    <section class="section section--updates" id="updates" hidden>
+      <div class="container">
+        <header class="shead" data-section-head="updates" data-num="NEW"></header>
+        <div class="upd" id="updatesBody" data-reveal></div>
+      </div>
+    </section>
+
+    <!-- ============ 게임 소개 ============ -->
+    <section class="section" id="about">
+      <div class="container">
+        <header class="shead" data-section-head="about" data-num="01"></header>
+        <div id="aboutBody"></div>
+      </div>
+    </section>
+
+    <!-- ============ 캐릭터 ============ -->
+    <section class="section section--alt" id="characters">
+      <div class="container">
+        <header class="shead" data-section-head="characters" data-num="02"></header>
+        <div class="ctool" data-reveal>
+          <label class="ctool__search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">캐릭터 검색</span>
+            <input id="charSearch" type="search" placeholder="이름 · 특성으로 검색" autocomplete="off">
+          </label>
+          <div class="chips" id="posChips" role="group" aria-label="포지션 필터"></div>
+        </div>
+        <div class="cgroups" id="charGrid"></div>
+        <p class="cempty" id="charEmpty" hidden>조건에 맞는 캐릭터가 없어요.</p>
+      </div>
+    </section>
+
+    <!-- ============ S+ 출시 · 복각 기록 (기록이 없으면 숨김) ============ -->
+    <section class="section section--history" id="history" hidden>
+      <div class="container">
+        <header class="shead" data-section-head="history" data-num="S+"></header>
+        <div class="hists" id="historyGrid" data-reveal></div>
+      </div>
+    </section>
+
+    <!-- ============ 게임 모드 ============ -->
+    <section class="section" id="modes">
+      <div class="container">
+        <header class="shead" data-section-head="modes" data-num="03"></header>
+        <div class="modes" id="modesGrid"></div>
+      </div>
+    </section>
+
+    <!-- ============ 재화 ============ -->
+    <section class="section section--alt" id="currency">
+      <div class="container">
+        <header class="shead" data-section-head="currency" data-num="04"></header>
+        <div class="curs" id="currencyGrid"></div>
+      </div>
+    </section>
+
+    <!-- ============ 공식 채널 ============ -->
+    <section class="section section--links" id="links">
+      <div class="container">
+        <header class="shead" data-section-head="links" data-num="05"></header>
+        <div class="links" id="linksGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand" data-logo="nav"></div>
+      <p class="footer__note" id="footerNote"></p>
+      <nav class="footer__social" id="footerSocial" aria-label="공식 채널"></nav>
+      <div class="footer__links">
+        <button class="sec-edit" type="button" data-edit="site">✎ 문구 편집</button>
+        <a class="footer__top" href="#home">맨 위로 ↑</a>
+        <button class="footer__admin" id="adminLogin" type="button">관리자</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ 캐릭터 상세 창 ============ -->
+  <div class="modal" id="charModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="mName">
+      <div class="modal__bar">
+        <span class="modal__count" id="mCount"></span>
+        <div class="modal__actions">
+          <button class="icon-btn" type="button" data-nav="-1" aria-label="이전 캐릭터">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+          </button>
+          <button class="icon-btn" type="button" data-nav="1" aria-label="다음 캐릭터">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          <button class="icon-btn" type="button" data-close aria-label="닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal__grid" id="mGrid">
+        <div class="modal__visual">
+          <div class="stage" id="mStage">
+            <img id="mImg" alt="" decoding="async">
+            <button class="stage__zoom" id="mZoom" type="button" aria-label="이미지 크게 보기">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            </button>
+          </div>
+          <p class="stage__note" id="mImgNote" hidden></p>
+          <div class="skin-info" id="mSkinInfo"></div>
+          <div class="skins-head"><h3>스킨</h3><span id="mSkinCount"></span></div>
+          <div class="skins" id="mSkins" role="listbox" aria-label="스킨 선택"></div>
+        </div>
+        <div class="modal__info" id="mInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이미지 크게 보기 -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <figure>
+      <img id="lbImg" alt="">
+      <figcaption id="lbCap"></figcaption>
+    </figure>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Firebase 연결 설정 (관리자 로그인 · 게시용) -->
+  <script src="js/firebase-config.js"></script>
+  <!-- 기본 내용 (Firebase 연결 전이거나 아직 게시한 적이 없을 때 보여요) -->
+  <script src="js/content.js"></script>
+  <script src="js/characters.js"></script>
+  <!-- 화면 동작 · 관리자 모드 -->
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
