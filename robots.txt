@@ -7,4 +7,4 @@ Disallow: /tools/
 Disallow: /firebase/
 Disallow: /README.md
 
-Sitemap: https://thezip-kr.github.io/sitemap.xml
+Sitemap: https://sh-0914.github.io/sitemap.xml

@@ -137,7 +137,7 @@ window.FIREBASE_CONFIG = {
 
 ## 4. 인터넷에 올리기
 
-GitHub Pages 로 운영해요. 주소는 `https://thezip-kr.github.io` 예요.
+GitHub Pages 로 운영해요. 주소는 `https://sh-0914.github.io` 예요.
 
 1. 코드를 고친 뒤 **GitHub Desktop** 을 열면 바뀐 파일이 보여요. Summary 에 한 줄 적고 **Commit to main → Push origin** 을 누르면 1~2분 뒤 사이트에 반영돼요. (횟수 제한 없음)
 2. 주소(도메인)를 새로 쓸 때는 Firebase 콘솔 → **Authentication → 설정 → 승인된 도메인**에 추가해야 관리자 로그인이 돼요.
