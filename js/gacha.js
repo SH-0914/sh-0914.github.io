@@ -13,7 +13,7 @@
  *      흰 공   : 그 밖의 선수
  *  · 픽업 선수는 '선수만' 또는 '스킨 + 선수'로 나와요. (스킨만 나오는 경우는 없어요)
  *  · 웨스턴 · 서머트레이닝: 모집할 때마다 반환 재화(스카우트 포인트)를 함께 받아요.
- *  · 한기태 픽업부터: 스카우트 대신 '픽업 모집 게이지'가 차고, 다 채우면 픽업 선수를 확정 획득해요.
+ *  · 엘리트 스테이지부터: 스카우트 대신 '픽업 모집 게이지'가 차고, 다 채우면 픽업 선수를 확정 획득해요.
  *  · 이미 뽑은 선수가 또 나오면 '노력의 조각'으로 표시해요.
  *    (기록은 이 화면에만 남고, 새로고침하면 처음부터 시작해요)
  *
@@ -52,7 +52,7 @@
   // 픽업 선수 교환에 쓰는 재화 — 배너의 exchange 가 이 재화로 픽업 선수를 교환하는 개수예요
   const EXCHANGE_POINT = 'pickup';
 
-  // 픽업 모집 게이지 (한기태 픽업부터) — 모집 1명당 +1, 다 채우면 배너의 픽업 선수를 확정 획득해요.
+  // 픽업 모집 게이지 (엘리트 스테이지부터) — 모집 1명당 +1, 다 채우면 배너의 픽업 선수를 확정 획득해요.
   // 확정 획득할수록 필요한 게이지가 줄어요 (1번째, 2번째, … 마지막 값은 6번째 이후에 계속 쓰여요)
   const GAUGE_PER_PULL = 1;
   const GAUGES = {
@@ -72,7 +72,7 @@
   //    rates        [스킨 + 픽업 선수, 픽업 선수, S ~ S- 선수] (%)
   //    returns      모집 1명당 받는 반환 재화 개수 (10명 모집이면 10배)
   //    exchange     픽업 스카우트 포인트 몇 개로 픽업 선수를 교환할 수 있는지
-  //  ─ 한기태 픽업부터 쓰는 방식 (rates 대신 아래를 적어요) ─
+  //  ─ 엘리트 스테이지부터 쓰는 방식 (rates 대신 아래를 적어요) ─
   //    pickups      픽업 선수 확률표 [{ char, grade, rate }] — 맨 위가 이 배너의 주인공
   //    poolRate     S ~ S- 기존 선수 확률 (%)
   //    lowerRates   [A+, A ~ A-, B+ ~ B-, C+ ~ C-, D+ ~ D-] 확률 (%)
@@ -80,8 +80,8 @@
   //    desc         배너 설명 (선택)
   const EVENTS = [
     {
-      name: '한기태 픽업',
-      period: '',
+      name: '엘리트 스테이지',
+      period: '2026년 9월',
       color: '#ff4a4a',
       notInGacha: ['제니', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
       banners: [
@@ -98,22 +98,8 @@
       ]
     },
     {
-      name: 'WESTERN EVENT',
-      period: '',
-      color: '#ffa24f',
-      notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
-      banners: [
-        { title: '레드후드 류현 선수 모집', char: '류현', skin: '레드 후드', grade: 'S+', color: '#ff3b30', rates: [0.375, 0.375, 2.75],
-          returns: { pickup: 3, westernSkin: 3 }, exchange: 450 },
-        { title: '바운티헌터 시프 선수 모집', char: '시프', skin: '바운티 헌터', grade: 'S', color: '#2fd3b0', rates: [0.5, 0.5, 2.5],
-          returns: { pickup: 4, westernSkin: 4 }, exchange: 400 },
-        { title: '갓파더 클레르 선수 모집', char: '클레르', skin: '갓파더', grade: 'S', color: '#e2b65c', rates: [0.5, 0.5, 2.5],
-          returns: { pickup: 4, westernSkin: 4 }, exchange: 400 }
-      ]
-    },
-    {
       name: '서머트레이닝',
-      period: '',
+      period: '2026년 7월',
       color: '#3ec8ff',
       notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
       banners: [
@@ -123,6 +109,20 @@
           returns: { pickup: 4, summerSkin: 4 }, exchange: 400 },
         { title: '서머 트레이닝 비올라 선수 모집', char: '비올라', skin: '서머 트레이닝', grade: 'S-', color: '#5ad4a0', rates: [0.5, 0.5, 2.5],
           returns: { pickup: 4, summerSkin: 4 }, exchange: 400 }
+      ]
+    },
+    {
+      name: 'WESTERN EVENT',
+      period: '2026년 5월',
+      color: '#ffa24f',
+      notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
+      banners: [
+        { title: '레드후드 류현 선수 모집', char: '류현', skin: '레드 후드', grade: 'S+', color: '#ff3b30', rates: [0.375, 0.375, 2.75],
+          returns: { pickup: 3, westernSkin: 3 }, exchange: 450 },
+        { title: '바운티헌터 시프 선수 모집', char: '시프', skin: '바운티 헌터', grade: 'S', color: '#2fd3b0', rates: [0.5, 0.5, 2.5],
+          returns: { pickup: 4, westernSkin: 4 }, exchange: 400 },
+        { title: '갓파더 클레르 선수 모집', char: '클레르', skin: '갓파더', grade: 'S', color: '#e2b65c', rates: [0.5, 0.5, 2.5],
+          returns: { pickup: 4, westernSkin: 4 }, exchange: 400 }
       ]
     }
   ];
@@ -505,7 +505,7 @@
     const g = gaugeState(ei, bi);
     let ret = '';
     if (g) {
-      // 한기태 픽업부터: 픽업 모집 게이지
+      // 엘리트 스테이지부터: 픽업 모집 게이지
       ret = `<div class="gx__ret"><span class="gx__ret-label">픽업 모집 게이지</span>
         <span class="gx__ex${g.ready ? ' is-ready' : ''}">${claimed ? '' : `<b>+${n * GAUGE_PER_PULL}</b> · `}${g.have} / ${g.need} · ${g.ready
           ? `<b>${esc(b.char)} 확정 획득 가능!</b>` : `앞으로 <b>${g.pullsLeft}회</b> 모집 시 확정 획득`}</span>

@@ -119,7 +119,7 @@
 .gban__ex b { color: #ffd27a; }
 .gban__ex .gx-coin { width: 15px; height: 15px; margin-right: 4px; vertical-align: -3px; }
 
-/* 픽업 모집 게이지 (한기태 픽업부터) */
+/* 픽업 모집 게이지 (엘리트 스테이지부터) */
 .ggauge { display: flex; flex-direction: column; gap: 7px; padding: 13px 14px 0; }
 .ggauge__top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-3); }
 .ggauge__top b { color: #ffd27a; font-variant-numeric: tabular-nums; }
