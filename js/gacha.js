@@ -389,13 +389,29 @@
   }
 
   // 게이지를 다 채우면 배너 주인공을 확정 획득해요
+  // 웨스턴 · 서머트레이닝은 픽업 스카우트 포인트를 모아 픽업 선수를 교환해요 (교환에 쓴 포인트는 used 에 모아요)
+  function exchangeNow(ei, bi) {
+    const pb = perBanner.get(`${ei}:${bi}`);
+    const st = exchangeState(bannerAt(ei, bi), pb ? (pb.points[EXCHANGE_POINT] || 0) - (pb.used || 0) : 0);
+    return st && { ...st, claims: pb ? pb.claims || 0 : 0 };
+  }
+
   function claim(ei, bi) {
     const b = bannerAt(ei, bi);
-    const g = gaugeState(ei, bi);
-    if (!b || !g || !g.ready) return;
-    const s = gauges.get(`${ei}:${bi}`);
-    s.value -= g.need;
-    s.claims += 1;
+    if (!b) return;
+    if (b.gauge) {
+      const g = gaugeState(ei, bi);
+      if (!g || !g.ready) return;
+      const s = gauges.get(`${ei}:${bi}`);
+      s.value -= g.need;
+      s.claims += 1;
+    } else {
+      const ex = exchangeNow(ei, bi);
+      if (!ex || !ex.ready) return;
+      const pb = perBanner.get(`${ei}:${bi}`);
+      pb.used = (pb.used || 0) + ex.cost;
+      pb.claims = (pb.claims || 0) + 1;
+    }
     const r = makeResult(EVENTS[ei], b, { type: 'pickup' });
     addOwned(r);
     renderStats();
@@ -500,8 +516,7 @@
     const { ei, bi, n, results, claimed } = last;
     const b = bannerAt(ei, bi);
     const ref = `${ei}:${bi}`;
-    const pb = perBanner.get(ref);
-    const ex = exchangeState(b, pb ? pb.points[EXCHANGE_POINT] : 0);
+    const ex = exchangeNow(ei, bi);
     const g = gaugeState(ei, bi);
     let ret = '';
     if (g) {
@@ -511,11 +526,12 @@
           ? `<b>${esc(b.char)} 확정 획득 가능!</b>` : `앞으로 <b>${g.pullsLeft}회</b> 모집 시 확정 획득`}</span>
         ${g.ready ? `<button class="ggauge__claim" type="button" data-claim="${ref}">확정 획득</button>` : ''}</div>`;
     } else {
-      const pts = pointsHTML(b, n, '+') + (ex ? `
+      const pts = (claimed ? '' : pointsHTML(b, n, '+')) + (ex ? `
         <span class="gx__ex${ex.ready ? ' is-ready' : ''}">${ex.ready
           ? `<b>${esc(b.char)} 교환 가능!</b>`
-          : `${esc(b.char)} 교환까지 <b>${ex.left.toLocaleString()}</b> 남음`} (${ex.have.toLocaleString()} / ${ex.cost.toLocaleString()})</span>` : '');
-      if (pts) ret = `<div class="gx__ret"><span class="gx__ret-label">반환 재화</span>${pts}</div>`;
+          : `${esc(b.char)} 교환까지 <b>${ex.left.toLocaleString()}</b> 남음`} (${ex.have.toLocaleString()} / ${ex.cost.toLocaleString()})</span>
+        ${ex.ready ? `<button class="ggauge__claim" type="button" data-claim="${ref}">교환</button>` : ''}` : '');
+      if (pts) ret = `<div class="gx__ret"><span class="gx__ret-label">${claimed ? '픽업 스카우트 포인트' : '반환 재화'}</span>${pts}</div>`;
     }
     const cnt = { red: 0, yellow: 0, white: 0 };
     let shards = 0;
@@ -674,6 +690,19 @@
   function gaugeHTML(ei, bi) {
     const b = bannerAt(ei, bi);
     const g = gaugeState(ei, bi);
+    const ex = !g && exchangeNow(ei, bi);
+    if (ex) {
+      // 픽업 스카우트 포인트 교환 (웨스턴 · 서머트레이닝)
+      return `
+      <div class="ggauge__top"><span>${coinSVG(EXCHANGE_POINT)}${esc(POINTS[EXCHANGE_POINT].name)}</span><b>${ex.have} / ${ex.cost}</b></div>
+      <div class="ggauge__row">
+        <span class="ggauge__bar${ex.ready ? ' is-ready' : ''}" role="progressbar" aria-label="${esc(b.char)} 교환" aria-valuemin="0" aria-valuemax="${ex.cost}" aria-valuenow="${Math.min(ex.have, ex.cost)}"><i style="width:${ex.pct.toFixed(1)}%"></i></span>
+        <button class="ggauge__claim" type="button" data-claim="${ei}:${bi}"${ex.ready ? '' : ' disabled'}>교환</button>
+      </div>
+      <p class="ggauge__msg${ex.ready ? ' is-ready' : ''}">${ex.ready
+        ? `<b>${esc(b.char)} 교환 가능!</b>`
+        : `앞으로 <b>${ex.pullsLeft}회</b> 모집 시 ${esc(b.char)} 교환!`}${ex.claims ? ` · 교환 ${ex.claims}회` : ''}</p>`;
+    }
     if (!g) return '';
     return `
       <div class="ggauge__top"><span>픽업 모집 게이지</span><b>${g.have} / ${g.need}</b></div>
@@ -703,7 +732,7 @@
           <p class="gban__desc">${esc(bannerDesc(b))}</p>
         </div>
         ${pointKeys(b).length ? `<p class="gban__ret"><span class="gban__ret-label">모집 1명당 반환 재화</span>${pointsHTML(b, 1, '×')}</p>` : ''}
-        ${ex ? `<p class="gban__ex">${coinSVG(EXCHANGE_POINT)}${esc(POINTS[EXCHANGE_POINT].name)} <b>${ex.cost}</b>개로 ${esc(b.char)} 교환 · 모집 ${ex.pullsTotal}명</p>` : ''}
+        ${ex ? `<div class="ggauge" data-gauge="${ref}">${gaugeHTML(ei, bi)}</div>` : ''}
         ${b.gauge ? `<div class="ggauge" data-gauge="${ref}">${gaugeHTML(ei, bi)}</div>` : ''}
         <div class="gban__btns">
           <button class="gx-ybtn" type="button" data-pull="${ref}" data-n="1">1명 모집${plus(1)}</button>
@@ -773,7 +802,7 @@
     return `
       <div class="gpb">${rows.map((r) => {
         const b = bannerAt(r.ei, r.bi);
-        const ex = exchangeState(b, r.points[EXCHANGE_POINT]);
+        const ex = exchangeNow(r.ei, r.bi);
         const g = gaugeState(r.ei, r.bi);
         const pts = pills(r.points);
         return `
@@ -789,7 +818,7 @@
           ${ex ? `
           <div class="gpb__ex${ex.ready ? ' is-ready' : ''}">
             <span class="gpb__bar" role="progressbar" aria-label="${esc(b.char)} 교환" aria-valuemin="0" aria-valuemax="${ex.cost}" aria-valuenow="${Math.min(ex.have, ex.cost)}"><i style="width:${ex.pct.toFixed(1)}%"></i></span>
-            <span>${ex.ready ? `<b>${esc(b.char)} 교환 가능!</b>` : `${esc(b.char)} 교환까지 <b>${ex.left.toLocaleString()}</b> · 모집 ${ex.pullsLeft}명 더`}</span>
+            <span>${ex.ready ? `<b>${esc(b.char)} 교환 가능!</b>` : `${esc(b.char)} 교환까지 <b>${ex.left.toLocaleString()}</b> · 모집 ${ex.pullsLeft}명 더`}${ex.claims ? ` · 교환 ${ex.claims}회` : ''}</span>
             <small>${ex.have.toLocaleString()} / ${ex.cost.toLocaleString()}</small>
           </div>` : ''}
         </div>`;
