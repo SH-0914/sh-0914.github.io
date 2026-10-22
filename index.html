@@ -53,6 +53,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <!-- 뽑기 시뮬레이터 디자인 -->
+  <link rel="stylesheet" href="css/gacha.css">
 </head>
 <body>
   <div class="progress" id="progress" aria-hidden="true"></div>
@@ -91,6 +93,7 @@
         <a href="#about" data-section="about">게임 소개</a>
         <a href="#characters" data-section="characters">캐릭터</a>
         <a href="#history" data-section="history" hidden>출시·복각</a>
+        <a href="#gacha" data-section="gacha">뽑기 시뮬레이터</a>
         <a href="#modes" data-section="modes">게임 모드</a>
         <a href="#currency" data-section="currency">재화</a>
         <a href="#links" data-section="links">공식 채널</a>
@@ -176,6 +179,11 @@
         <header class="shead" data-section-head="history" data-num="S+"></header>
         <div class="hists" id="historyGrid" data-reveal></div>
       </div>
+    </section>
+
+    <!-- ============ 뽑기 시뮬레이터 (내용은 js/gacha.js 에서 그려요) ============ -->
+    <section class="section section--gacha" id="gacha">
+      <div class="container" id="gachaRoot"></div>
     </section>
 
     <!-- ============ 게임 모드 ============ -->
@@ -270,5 +278,7 @@
   <!-- 화면 동작 · 관리자 모드 -->
   <script src="js/app.js"></script>
   <script src="js/admin.js"></script>
+  <!-- 뽑기 시뮬레이터 -->
+  <script src="js/gacha.js"></script>
 </body>
 </html>

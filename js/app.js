@@ -1543,7 +1543,7 @@
       const io = new IntersectionObserver((entries) => {
         entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
       }, { rootMargin: '-45% 0px -50% 0px' });
-      ['home', 'updates', 'about', 'characters', 'history', 'modes', 'currency', 'links'].forEach((id) => {
+      ['home', 'updates', 'about', 'characters', 'history', 'gacha', 'modes', 'currency', 'links'].forEach((id) => {
         const s = document.getElementById(id);
         if (s) io.observe(s);
       });
