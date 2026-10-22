@@ -72,6 +72,7 @@
   //    rates        [스킨 + 픽업 선수, 픽업 선수, S ~ S- 선수] (%)
   //    returns      모집 1명당 받는 반환 재화 개수 (10명 모집이면 10배)
   //    exchange     픽업 스카우트 포인트 몇 개로 픽업 선수를 교환할 수 있는지
+  //    notInGacha   (선택) 이 배너에서만 더 빠지는 선수 — 이벤트의 notInGacha 에 더해져요
   //  ─ 엘리트 스테이지부터 쓰는 방식 (rates 대신 아래를 적어요) ─
   //    pickups      픽업 선수 확률표 [{ char, grade, rate }] — 맨 위가 이 배너의 주인공
   //    poolRate     S ~ S- 기존 선수 확률 (%)
@@ -83,7 +84,7 @@
       name: '엘리트 스테이지',
       period: '2026년 9월',
       color: '#ff4a4a',
-      notInGacha: ['제니', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
+      notInGacha: ['제니', '강세진', '유리', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN', '클레르', '시프', '비올라'],
       banners: [
         { title: 'S+ 한기태 선수 모집', char: '한기태', grade: 'S+', color: '#ff4a4a',
           desc: '엘리트 스테이지로 합류한 S+ 미들블로커 한기태 선수를 포함한 선수들을 모집할 수 있습니다.',
@@ -101,7 +102,7 @@
       name: '서머트레이닝',
       period: '2026년 7월',
       color: '#3ec8ff',
-      notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
+      notInGacha: ['제니', '강세진', '유리', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN', '클레르', '시프', '비올라'],
       banners: [
         { title: '서머 트레이닝 루카스 선수 모집', char: '루카스', skin: '서머 트레이닝', grade: 'S+', color: '#ffb547', rates: [0.375, 0.375, 2.75],
           returns: { pickup: 3, summerSkin: 3 }, exchange: 450 },
@@ -115,7 +116,7 @@
       name: 'WESTERN EVENT',
       period: '2026년 5월',
       color: '#ffa24f',
-      notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN'],
+      notInGacha: ['제니', '유리', '강세진', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN', '비올라'],
       banners: [
         { title: '레드후드 류현 선수 모집', char: '류현', skin: '레드 후드', grade: 'S+', color: '#ff3b30', rates: [0.375, 0.375, 2.75],
           returns: { pickup: 3, westernSkin: 3 }, exchange: 450 },
@@ -272,10 +273,12 @@
   }
   // S+ 는 픽업 선수(류현 등)로만 나오고, 그 밖의 S+ 선수는 이벤트 배너에서 나오지 않아요.
   // 이벤트 픽업 선수 · 안 나오는 선수도 빠져요.
-  function rosterPool(ev, grades) {
+  const excludedBy = (ev, b) => [...ev.notInGacha, ...((b && b.notInGacha) || [])];
+  function rosterPool(ev, grades, b) {
+    const ex = excludedBy(ev, b);
     const pickups = ev.banners.flatMap(pickupList).map((p) => findChar(p.char, p.grade)).filter(Boolean);
     return chars().filter((c) => c.grade !== 'S+' && grades.includes(c.grade)
-      && !pickups.includes(c) && !ev.notInGacha.some((e) => isListed(c, e)));
+      && !pickups.includes(c) && !ex.some((e) => isListed(c, e)));
   }
 
   function tiersOf(b) {
@@ -305,7 +308,7 @@
         color: c ? c.color : b.color
       };
     }
-    const pool = rosterPool(ev, t.grades);
+    const pool = rosterPool(ev, t.grades, b);
     if (pool.length) {
       const c = pool[Math.floor(rand() * pool.length)];
       return {
@@ -560,7 +563,7 @@
   // 이 배너에서 나오지 않는 선수 (이 배너의 픽업 선수는 빼고)
   function notShown(ev, b) {
     const mine = new Set(pickupList(b).map((p) => norm(p.char)));
-    return [...new Set([...ev.notInGacha, ...sPickups(ev)])].filter((n) => !mine.has(norm(n)));
+    return [...new Set([...excludedBy(ev, b), ...sPickups(ev)])].filter((n) => !mine.has(norm(n)));
   }
 
   function rateRows(ev, b) {
