@@ -359,11 +359,7 @@
             <button class="gx-ybtn" type="button" data-skg-draw="one"${c.done ? ' disabled' : ''}>추첨하기<small>${c.done ? '모두 획득' : `${esc(ev.ticket)} ${c.cost}개`}</small></button>
             <button class="gx-ybtn skg-btn--alt" type="button" data-skg-draw="first"${c.done || gotFirst ? ' disabled' : ''}>1등상 나올 때까지</button>
             <button class="btn btn--ghost btn--sm" type="button" data-skg-reset${st.got.length ? '' : ' disabled'}>처음부터</button>
-          </div>
-          <p class="skg__spent">사용한 추첨권 <b>${st.spent}개</b>${st.spent > ev.freeTickets
-            ? ` · 무료 ${ev.freeTickets}개를 빼고 ${esc(ev.buy.name)} <b>${boughtCost(ev, st.spent).toLocaleString()}</b> (1개 ${ev.buy.price})`
-            : ` · 무료 추첨권 ${ev.freeTickets}개 안이에요`}</p>
-        </div>
+          </div>        </div>
       </div>
       <div class="skg-info">
         <section class="skg-card">
