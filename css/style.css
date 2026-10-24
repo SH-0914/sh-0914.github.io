@@ -876,6 +876,8 @@ svg { flex: none; }
 .combo__bonus span { display: inline-flex; align-items: center; gap: 6px; }
 .combo__bonus b { color: var(--ink); font-weight: 800; }
 .combo__bonus .stat-ico { width: 22px; height: 22px; }
+.combo__desc { display: flex; align-items: flex-start; justify-content: center; gap: 8px; max-width: 100%; font-size: 15px; line-height: 1.6; color: var(--ink); text-align: left; }
+.combo__desc .stat-ico { flex: none; width: 22px; height: 22px; margin-top: 1px; color: #ffc94a; }
 
 /* 특성 */
 .traits { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
@@ -1510,6 +1512,20 @@ body.is-admin .footer__admin { color: #ffcf7a; border-color: rgba(255, 176, 32, 
 .ed-statnums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .ed-statnums label { display: grid; grid-template-columns: auto 1fr 72px; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .ed-statnums .stat-ico { width: 20px; height: 20px; }
+.ed-chip.is-me { background: color-mix(in srgb, var(--c, var(--accent)) 22%, transparent); border-color: var(--c, var(--accent)); }
+
+/* 캐릭터 편집 화면의 조합 */
+.ed-combo select, .ed-combo__join {
+  width: 100%; height: 40px; padding: 0 12px; border-radius: 10px; outline: none; font-size: 14px; color: var(--ink);
+  background: rgba(6, 10, 20, .55); border: 1px solid var(--line-2);
+}
+.ed-combo select option, .ed-combo__join option { background: var(--panel); }
+/* 캐릭터 고르기 목록의 포지션 묶음 이름 */
+.f select optgroup, .ed-combo select optgroup { background: var(--panel); color: #ffc94a; font-style: normal; font-weight: 800; }
+.f select optgroup option, .ed-combo select optgroup option { color: var(--ink); font-weight: 500; }
+.ed-combo__join { border-style: dashed; color: var(--ink-2); }
+.ed-combo__del { flex: none; color: var(--danger); }
+.ed-combo .ed-item__row input { flex: 1; min-width: 0; font-weight: 700; }
 .ed-statnums input { width: 100%; height: 32px; padding: 0 8px; border-radius: 8px; outline: none; text-align: right; background: rgba(6, 10, 20, .55); border: 1px solid var(--line-2); }
 
 /* 테마 고르기 카드 (관리자 모드 → 테마) */

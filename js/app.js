@@ -132,12 +132,12 @@
         reruns: list(h.reruns).map(str).filter((s) => s.trim()),
         note: str(h.note)
       })),
-      // 캐릭터 조합: 함께 편성하면 능력치 보너스 (members 는 캐릭터 id, bonus 는 { attack: 7, jump: 4 })
+      // 캐릭터 조합: 함께 편성하면 능력치 보너스 (members 는 캐릭터 id, bonus 는 { attack: 7, jump: 4 }, desc 는 그 밖의 효과 설명)
       combos: (src.combos === undefined ? DEFAULT_COMBOS : list(src.combos)).map(obj).map((k) => {
         const b = obj(k.bonus);
         const bonus = {};
         STAT_DEFS.forEach((d) => { const n = Number(b[d.key]); if (Number.isFinite(n) && n) bonus[d.key] = n; });
-        return { name: str(k.name), members: list(k.members).map(str).filter(Boolean), bonus };
+        return { name: str(k.name), members: list(k.members).map(str).filter(Boolean), bonus, desc: str(k.desc) };
       }),
       // 메인 화면 복각 알림 (skin 이 비어 있으면 캐릭터 복각)
       rerunNotices: list(src.rerunNotices).map(obj).map((r) => ({
@@ -1464,6 +1464,7 @@
               </button>`).join('')}
             </div>
             ${bonus.length ? `<p class="combo__bonus">${bonus.map((d) => `<span style="--sc:${d.color}">${statIcon(d.icon)}${esc(d.name)} <b>${k.bonus[d.key] > 0 ? '+' : ''}${k.bonus[d.key]}</b></span>`).join('')}</p>` : ''}
+            ${k.desc.trim() ? `<p class="combo__desc" style="--sc:#ffc94a">${statIcon('star')}<span>${multiline(k.desc.trim())}</span></p>` : ''}
           </article>`;
         }).join('')}</div>
       </section>`;

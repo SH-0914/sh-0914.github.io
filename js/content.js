@@ -71,6 +71,7 @@ window.SITE_CONTENT = {
   /* ---------- 캐릭터 조합 ----------
    * 함께 편성하면 능력치 보너스가 붙는 조합이에요. 캐릭터 상세 창에 '조합'으로 보여요.
    * members 는 캐릭터 id, bonus 는 attack(공격력) · defense(수비력) · speed(스피드) · jump(점프력)
+   * desc 는 능력치 말고 다른 효과가 있을 때 적는 설명 (예: "오아시스 정오 발동 점수 9점으로 변경")
    * 관리자 모드 → 캐릭터 섹션의 '섹션 제목 · 조합 편집'에서 고치고 게시하면 이 목록 대신 게시한 내용이 보여요. */
   combos: [
     { name: "작지만 강하다", members: ["char-mvfcq5y0", "char-mvf4ajr1"], bonus: { attack: 7, jump: 4 } },        // 리시아 · 이영섭

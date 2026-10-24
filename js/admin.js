@@ -656,12 +656,19 @@ service cloud.firestore {
     { key: 'image', label: '아이콘 이미지 (선택 — 넣으면 이모지 대신 표시)', type: 'image', preset: 'icon' }
   ];
 
-  // 캐릭터 고르기 목록 (등급순) · 목록 카드 제목에 캐릭터 이름 표시
+  // 캐릭터 고르기 목록 — 포지션별로 묶고(스파이커 → 미들블로커 → 세터 → 미정) 같은 포지션은 등급순
+  // · 목록 카드 제목에 캐릭터 이름 표시
   const charLabel = (c) => `${c.grade ? `[${c.grade}] ` : ''}${c.name || '이름 없음'}`;
-  function charOptions() {
+  function charOptgroups(selected = '', skip = []) {
     const rank = (g) => { const i = T.GRADES.indexOf(g); return i < 0 ? T.GRADES.length : i; };
-    const sorted = [...state.data.characters].sort((a, b) => rank(a.grade) - rank(b.grade));
-    return [['', '캐릭터 선택'], ...sorted.map((c) => [c.id, `${charLabel(c)} · ${c.position || '포지션 미정'}`])];
+    const posOf = (c) => (T.POSITIONS.includes(c.position) ? c.position : '');
+    return [...T.POSITIONS, ''].map((pos) => {
+      const list = state.data.characters
+        .filter((c) => posOf(c) === pos && !skip.includes(c.id))
+        .sort((a, b) => rank(a.grade) - rank(b.grade));
+      return list.length ? `<optgroup label="${esc(pos || '포지션 미정')}">${list.map((c) =>
+        `<option value="${esc(c.id)}"${c.id === selected ? ' selected' : ''}>${esc(charLabel(c))}</option>`).join('')}</optgroup>` : '';
+    }).join('');
   }
   // 복각 알림: 고른 캐릭터의 스킨 목록 (path 는 이 칸의 위치, 예: rerunNotices.0.skin)
   function skinOptions(path) {
@@ -746,7 +753,8 @@ service cloud.firestore {
           { key: 'combos', type: 'list', titleKey: 'name', addLabel: '+ 조합 추가', of: { type: 'object', fields: [
             { key: 'name', label: '조합 이름', type: 'text', placeholder: '예: 작지만 강하다' },
             { key: 'members', label: '캐릭터 (함께 편성하는 선수)', type: 'chars' },
-            { key: 'bonus', label: '능력치 보너스 (없는 칸은 비워 두세요)', type: 'stats' }
+            { key: 'bonus', label: '능력치 보너스 (없는 칸은 비워 두세요)', type: 'stats' },
+            { key: 'desc', label: '효과 설명 (선택 — 능력치 말고 다른 효과가 있을 때)', type: 'textarea', rows: 2, placeholder: '예: 오아시스 정오 발동 점수 9점으로 변경' }
           ] } }
         ] }
       ]
@@ -778,7 +786,7 @@ service cloud.firestore {
         { title: '섹션 제목', path: 'sections.history', fields: SECTION_FIELDS },
         { title: '캐릭터별 기록', path: '', fields: [
           { key: 'history', type: 'list', titleKey: 'charId', titleMap: 'char', addLabel: '+ 캐릭터 추가', of: { type: 'object', fields: [
-            { key: 'charId', label: '캐릭터', type: 'select', options: () => charOptions() },
+            { key: 'charId', label: '캐릭터', type: 'char' },
             { key: 'first', label: '첫 출시일', type: 'text', placeholder: '예: 2025.03.01' },
             { key: 'reruns', label: '복각 날짜 (한 줄에 하나씩, 오래된 순서로)', type: 'lines', rows: 3, placeholder: '예:\n2025.06.10\n2025.10.01' },
             { key: 'note', label: '메모 (선택)', type: 'text', placeholder: '예: 할로윈 이벤트와 함께 복각' }
@@ -792,7 +800,7 @@ service cloud.firestore {
       groups: [
         { title: '복각 목록', path: '', fields: [
           { key: 'rerunNotices', type: 'list', titleKey: 'charId', titleMap: 'char', addLabel: '+ 복각 추가', of: { type: 'object', fields: [
-            { key: 'charId', label: '캐릭터', type: 'select', options: () => charOptions(), resets: 'skin' },
+            { key: 'charId', label: '캐릭터', type: 'char', resets: 'skin' },
             { key: 'skin', label: '스킨 (스킨 복각일 때만 고르세요)', type: 'select', options: (path) => skinOptions(path) },
             { key: 'start', label: '복각 시작일', type: 'text', placeholder: '예: 2026.10.30' },
             { key: 'end', label: '복각 종료일 (이 날이 지나면 자동으로 사라져요)', type: 'text', placeholder: '예: 2026.11.12' }
@@ -904,13 +912,15 @@ service cloud.firestore {
         // options 는 고정 목록이거나, 그때그때 만드는 함수(예: 캐릭터 목록 · 그 캐릭터의 스킨 목록)
         // resets: 이 값을 바꾸면 비워지는 옆 칸 (예: 캐릭터를 바꾸면 스킨 선택을 비움)
         return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text"${f.resets ? ` data-resets="${esc(f.resets)}"` : ''}>${(typeof f.options === 'function' ? f.options(path) : f.options).map(([val, l]) => `<option value="${esc(val)}"${val === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+      case 'char':
+        // 캐릭터 한 명 고르기 (포지션별로 묶은 목록)
+        return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text"${f.resets ? ` data-resets="${esc(f.resets)}"` : ''}><option value="">캐릭터 선택</option>${charOptgroups(v)}</select>${hint}</div>`;
       case 'chars': {
         // 캐릭터 여러 명 고르기 (조합 멤버) — 고른 순서대로 보여요
         const ids = Array.isArray(v) ? v : [];
         const chips = ids.map((cid, i) => `<span class="ed-chip">${esc(TITLE_MAPS.char(cid))}<button type="button" data-chars-remove="${p}" data-i="${i}" aria-label="빼기">✕</button></span>`).join('');
-        const opts = charOptions().filter(([cid]) => cid && !ids.includes(cid));
         return `<div class="f">${label}<div class="ed-chips">${chips || '<span class="f__hint">아직 없어요.</span>'}</div>
-          <select id="${id}" data-chars-add="${p}"><option value="">+ 캐릭터 추가</option>${opts.map(([val, l]) => `<option value="${esc(val)}">${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+          <select id="${id}" data-chars-add="${p}"><option value="">+ 캐릭터 추가</option>${charOptgroups('', ids)}</select>${hint}</div>`;
       }
       case 'stats':
         // 스탯별 숫자 (예: 조합 보너스 공격력 +7)
@@ -1305,6 +1315,11 @@ service cloud.firestore {
         </section>
 
         <section class="ed__sec">
+          <div class="ed__sechead"><h3>조합 <small class="f__hint">함께 편성하면 능력치 보너스</small></h3><button class="ed-btn" type="button" data-combo-act="new">+ 새 조합</button></div>
+          <div class="ed-list" data-list="combos"></div>
+        </section>
+
+        <section class="ed__sec">
           <div class="ed__sechead"><h3>프로필</h3><button class="ed-btn" type="button" data-add="profile">+ 항목</button></div>
           <div class="ed-list" data-list="profile"></div>
         </section>
@@ -1342,7 +1357,42 @@ service cloud.firestore {
     $('[data-live="name"]', target).textContent = c.name || '이름 없음';
     updateTotals(c);
     ['profile', 'traits', 'skins'].forEach((k) => renderList(c, k));
+    renderCombos(c);
     updateNote();
+  }
+
+  // 이 캐릭터가 들어간 조합 (캐릭터 섹션의 '조합 편집'과 같은 목록을 고쳐요)
+  function renderCombos(c) {
+    const wrap = $('[data-list="combos"]', box);
+    if (!wrap) return;
+    const all = state.content.combos.map((k, i) => ({ k, i }));
+    const mine = all.filter(({ k }) => k.members.includes(c.id));
+    const others = all.filter(({ k }) => !k.members.includes(c.id));
+    const name = (id) => TITLE_MAPS.char(id);
+    wrap.innerHTML = (mine.length ? mine.map(({ k, i }) => `
+      <div class="ed-item ed-combo">
+        <div class="ed-item__row">
+          <input data-combo="${i}" data-ck="name" value="${esc(k.name)}" placeholder="조합 이름 (예: 작지만 강하다)" aria-label="조합 이름">
+          <button type="button" class="ed-btn ed-btn--ghost ed-combo__del" data-combo-act="delete" data-combo="${i}">조합 삭제</button>
+        </div>
+        <div class="ed-chips">${k.members.map((id, mi) => `
+          <span class="ed-chip${id === c.id ? ' is-me' : ''}">${esc(name(id))}<button type="button" data-combo-act="remove" data-combo="${i}" data-mi="${mi}" aria-label="${id === c.id ? '이 캐릭터를 조합에서 빼기' : '빼기'}" title="${id === c.id ? '이 캐릭터를 조합에서 빼요' : '조합에서 빼요'}">✕</button></span>`).join('')}
+        </div>
+        <select data-combo="${i}" data-ck="add" aria-label="함께 편성하는 캐릭터 추가"><option value="">+ 함께 편성하는 캐릭터 추가</option>${charOptgroups('', k.members)}</select>
+        <div class="ed-statnums">${state.data.statDefs.map((d) => `
+          <label style="--sc:${d.color}">${T.statIcon(d.icon)}<span>${esc(d.name)}</span>
+            <input type="number" step="1" inputmode="numeric" data-combo="${i}" data-ck="bonus" data-bonus="${esc(d.key)}" value="${esc(k.bonus[d.key] != null ? k.bonus[d.key] : '')}" placeholder="—" aria-label="${esc(d.name)} 보너스"></label>`).join('')}
+        </div>
+        <textarea data-combo="${i}" data-ck="desc" rows="2" placeholder="효과 설명 (선택) — 예: 오아시스 정오 발동 점수 9점으로 변경" aria-label="조합 효과 설명">${esc(k.desc || '')}</textarea>
+      </div>`).join('') : '<p class="ed__empty">아직 이 캐릭터가 들어간 조합이 없어요. \'+ 새 조합\'을 누르거나 아래에서 기존 조합에 넣어 보세요.</p>')
+      + (others.length ? `<select class="ed-combo__join" data-combo-join aria-label="기존 조합에 넣기"><option value="">+ 기존 조합에 이 캐릭터 넣기</option>${others
+        .map(({ k, i }) => `<option value="${i}">${esc(k.name || '이름 없는 조합')} — ${esc(k.members.map((id) => (T.getChar(id) || {}).name || '?').join(' · '))}</option>`).join('')}</select>` : '');
+  }
+  // 조합을 고친 뒤: 편집 화면 · 캐릭터 섹션의 조합 목록 다시 그리기
+  function afterCombo(c) {
+    renderCombos(c);
+    if (drawerKey === 'characters') refreshDrawer();
+    T.persist();
   }
 
   const LIST_EMPTY = {
@@ -1449,6 +1499,21 @@ service cloud.firestore {
     if (!c) return;
     const t = e.target;
 
+    // 조합 이름 · 능력치 보너스 (캐릭터 추가는 아래 change 에서)
+    if (t.dataset.combo != null && t.dataset.ck !== 'add') {
+      const k = state.content.combos[Number(t.dataset.combo)];
+      if (!k) return;
+      if (t.dataset.ck === 'name') k.name = t.value;
+      if (t.dataset.ck === 'desc') k.desc = t.value;
+      if (t.dataset.ck === 'bonus') {
+        const n = Number(t.value);
+        if (t.value.trim() === '' || !Number.isFinite(n) || !n) delete k.bonus[t.dataset.bonus];
+        else k.bonus[t.dataset.bonus] = n;
+      }
+      T.persist();
+      return;
+    }
+
     if (t.dataset.f) {
       const k = t.dataset.f;
       const v = t.value;
@@ -1517,6 +1582,24 @@ service cloud.firestore {
     });
     syncStatRow($(`[data-stat-row="${cssEsc(def.key)}"]`, box), def, s);
   }
+
+  // 조합: 함께 편성하는 캐릭터 추가 · 기존 조합에 이 캐릭터 넣기
+  box.addEventListener('change', (e) => {
+    const t = e.target;
+    if (!state.editing || !t.value) return;
+    const c = T.current();
+    if (!c) return;
+    if (t.dataset.ck === 'add') {
+      const k = state.content.combos[Number(t.dataset.combo)];
+      if (k && !k.members.includes(t.value)) k.members.push(t.value);
+      afterCombo(c);
+    } else if (t.hasAttribute('data-combo-join')) {
+      const k = state.content.combos[Number(t.value)];
+      if (k && !k.members.includes(c.id)) k.members.push(c.id);
+      afterCombo(c);
+      T.toast(`'${k ? k.name || '이름 없는 조합' : ''}' 조합에 넣었어요.`, 'ok');
+    }
+  });
 
   // 숫자 칸 입력을 마치면: 비어 있으면 원래 값으로, 최소가 최대보다 크면 맞춰 줍니다
   box.addEventListener('change', (e) => {
@@ -1618,6 +1701,33 @@ service cloud.firestore {
     }
     if (b.dataset.previewSkin != null) return T.selectSkin(Number(b.dataset.previewSkin));
     if (b.dataset.char) return charAction(b.dataset.char, c);
+
+    // 조합: 새로 만들기 · 캐릭터 빼기 · 조합 삭제
+    const act = b.dataset.comboAct;
+    if (act === 'new') {
+      state.content.combos.push({ name: '', members: [c.id], bonus: {}, desc: '' });
+      afterCombo(c);
+      const items = $$('[data-list="combos"] .ed-combo', box);
+      const last = items[items.length - 1];
+      if (last) {
+        last.classList.add('is-new');
+        last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        $('input', last).focus({ preventScroll: true });
+      }
+      return;
+    }
+    const k = state.content.combos[Number(b.dataset.combo)];
+    if (!k) return;
+    if (act === 'remove') {
+      const leaving = k.members[Number(b.dataset.mi)] === c.id;
+      k.members.splice(Number(b.dataset.mi), 1);
+      afterCombo(c);
+      if (leaving) T.toast(`'${k.name || '이름 없는 조합'}' 조합에서 뺐어요. 조합은 그대로 남아 있어요.`);
+    } else if (act === 'delete') {
+      if (!window.confirm(`'${k.name || '이름 없는 조합'}' 조합을 삭제할까요?\n(이 조합에 들어간 모든 캐릭터에서 사라져요)`)) return;
+      state.content.combos.splice(Number(b.dataset.combo), 1);
+      afterCombo(c);
+    }
   });
 
   function afterStructural(c, kind) {
