@@ -58,6 +58,15 @@
     history: { nav: '출시·복각', eyebrow: 'RELEASE HISTORY', title: 'S+ 출시 · 복각 기록' }
   };
 
+  // 사이트 테마 (관리자 모드 → 테마에서 골라요)
+  // 새 테마를 만들 때: 여기에 한 줄 추가하고, css 파일에 html.theme-아이디 { ... } 로 꾸며요. (예: css/halloween.css)
+  const THEMES = [
+    { id: 'default', name: '원래 테마', desc: '남색 코트 · 주황 · 하늘색 — 사이트 기본 디자인',
+      preview: 'radial-gradient(circle at 76% 34%, #ff8a4c 0 13%, transparent 14%), radial-gradient(60% 70% at 20% 90%, rgba(50, 212, 255, .45), transparent 70%), linear-gradient(135deg, #142042, #060a14)' },
+    { id: 'halloween', name: '할로윈', desc: '보라색 밤하늘 · 달 · 박쥐 · 거미 · 유령 · 마녀 모자 · 묘비 언덕',
+      preview: 'radial-gradient(circle at 74% 30%, #ffe3a3 0 12%, transparent 13%), radial-gradient(circle at 26% 76%, #ff7a1a 0 10%, transparent 11%), radial-gradient(60% 70% at 30% 90%, rgba(162, 89, 255, .45), transparent 70%), linear-gradient(135deg, #2b1748, #0a0612)' }
+  ];
+
   // 게시된 내용에 공식 채널이 아직 없으면 content.js 의 기본 링크를 보여줍니다.
   const DEFAULT_LINKS = list(obj(window.SITE_CONTENT).links);
 
@@ -92,7 +101,9 @@
         tagline: str(site.tagline),
         introEveryVisit: site.introEveryVisit === true,
         pixelArt: site.pixelArt === true,
-        cardImageFit: site.cardImageFit === 'contain' ? 'contain' : 'cover'
+        cardImageFit: site.cardImageFit === 'contain' ? 'contain' : 'cover',
+        // 사이트 테마 (THEMES 의 id). 고른 적이 없으면 원래 테마
+        theme: THEMES.some((t) => t.id === site.theme) ? site.theme : 'default'
       },
       sections,
       about: {
@@ -1043,6 +1054,8 @@
     document.title = s.title || '더 스파이크 크로스 공략집';
     document.body.classList.toggle('pixel-art', s.pixelArt);
     document.documentElement.style.setProperty('--card-fit', s.cardImageFit);
+    // 테마: html 에 theme-아이디 를 붙여요 (원래 테마는 아무것도 붙이지 않아요)
+    THEMES.forEach((t) => document.documentElement.classList.toggle('theme-' + t.id, t.id !== 'default' && s.theme === t.id));
   }
 
   // 관리자가 글을 고칠 때마다 다시 그리는 부분 (캐릭터 목록 제외)
@@ -1805,7 +1818,7 @@
     normalizeContent, normalize, snapshot, isDirty, applySnapshot, markPublished, persist, revertToPublished,
     previewMap, setImg, getImageURL, hydrateImages, placeholder, safeColor, rarityClass,
     statTotal, statSum, getChar, current, allPositions,
-    STAT_ICONS, statIcon, POSITIONS, GRADES, CHAR_COLORS, gradeBadge,
+    STAT_ICONS, statIcon, POSITIONS, GRADES, CHAR_COLORS, THEMES, gradeBadge,
     renderChips, renderCharacters, refreshCard, updateHeroCounts, renderHeroRows, refreshAll, refreshEverything, renderContent,
     openCharacter, closeCharacter, renderModal, renderInfo, renderSkinStrip, refreshStage, selectSkin, updateModalCount,
     setEditing, toast, observeReveal,
@@ -1817,6 +1830,7 @@
    *  시작
    * ===================================================================== */
   function init() {
+    applySiteSettings(); // 게시된 내용을 불러오는 동안에도 테마가 보이게
     $('[data-ball]').innerHTML = `<div class="ball-float">${ballSVG(true)}</div>`;
     bindUI();
     initNav();

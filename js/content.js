@@ -43,7 +43,12 @@ window.SITE_CONTENT = {
     // 캐릭터 카드 이미지 맞춤 방식
     //  "cover"   : 카드를 꽉 채움 (가장자리가 조금 잘릴 수 있음)
     //  "contain" : 이미지 전체가 보이게 (배경이 투명한 PNG에 추천)
-    cardImageFit: "cover"
+    cardImageFit: "cover",
+
+    // 사이트 테마 (관리자 모드 → 테마에서 바꿔요)
+    //  "default"   : 원래 테마
+    //  "halloween" : 할로윈 테마
+    theme: "default"
   },
 
   /* ---------- 섹션 제목 ---------- */

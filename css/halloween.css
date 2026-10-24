@@ -1,0 +1,184 @@
+/* =====================================================================
+ *  테마 — 할로윈
+ *  html 에 theme-halloween 이 붙었을 때만 적용돼요. (관리자 모드 → 도구 막대의 테마)
+ *  장식 그림은 모두 이 파일 안의 SVG 라서 이미지 파일이 따로 필요 없어요.
+ * ===================================================================== */
+
+/* 장식 요소는 평소에는 숨김 */
+.hw { display: none; }
+html.theme-halloween .hw { display: block; }
+
+/* ---------- 색상: 밤하늘 보라 · 호박 주황 ---------- */
+html.theme-halloween {
+  --bg: #0a0612;
+  --bg-2: #120a1f;
+  --panel: #170e2a;
+  --panel-2: #21143a;
+  --line: rgba(190, 150, 255, .11);
+  --line-2: rgba(190, 150, 255, .22);
+  --ink-2: #c0b4d8;
+  --ink-3: #85799f;
+  --accent: #ff7a1a;
+  --accent-2: #ffa04d;
+  --accent-soft: rgba(255, 122, 26, .16);
+  --cyan: #b98cff;
+  --cyan-soft: rgba(185, 140, 255, .14);
+}
+
+html.theme-halloween .orb--b { background: radial-gradient(closest-side, rgba(162, 89, 255, .16), transparent); }
+html.theme-halloween .orb--c { background: radial-gradient(closest-side, rgba(110, 255, 120, .06), transparent); }
+html.theme-halloween .progress { background: linear-gradient(90deg, #ff7a1a, #a259ff, #7dff6a); }
+html.theme-halloween .section--alt { background: linear-gradient(180deg, transparent, rgba(26, 14, 44, .6) 14%, rgba(26, 14, 44, .6) 86%, transparent); }
+html.theme-halloween .shead__eyebrow::after { background: linear-gradient(90deg, var(--accent), #a259ff 60%, transparent); }
+html.theme-halloween .nav.is-scrolled { background: rgba(10, 6, 18, .74); }
+@media (max-width: 860px) {
+  html.theme-halloween .nav__links { background: rgba(18, 10, 30, .95); }
+  html.theme-halloween .nav.is-menu { background: rgba(10, 6, 18, .92); }
+}
+
+html.theme-halloween .btn--primary {
+  background: linear-gradient(135deg, #ffb04d, #ff7a1a 55%, #e2540a);
+  box-shadow: 0 12px 30px -12px rgba(255, 122, 26, .85), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+html.theme-halloween .logo__main { background-image: linear-gradient(100deg, #fff 0 40%, #ffb36b 50%, #fff 60% 100%); }
+html.theme-halloween .logo__sub { background-image: linear-gradient(90deg, #ff7a1a, #ffb15c 45%, #b47cff); }
+
+/* ---------- 마녀 모자 (로고의 공 · 메인 화면의 큰 공) ---------- */
+html.theme-halloween .logo__ball::before,
+html.theme-halloween .hero__ball .ball-float::before {
+  content: ""; position: absolute; z-index: 1; pointer-events: none;
+  aspect-ratio: 100 / 90; transform-origin: 50% 85%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpath d='M24 73C34 52 41 31 52 12C58 3 70 1 78 7C67 7 63 13 61 23C58 40 65 57 76 73Z' fill='%232b1748'/%3E%3Cpath d='M41 50C45 37 49 26 55 17' stroke='%23fff' stroke-opacity='.14' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='50' cy='75' rx='47' ry='10' fill='%231f1035'/%3E%3Cpath d='M26 65C42 70 59 70 74 65L76 72C60 77 41 77 24 72Z' fill='%23ff7a1a'/%3E%3Crect x='44' y='64.5' width='12' height='10' rx='1.5' fill='none' stroke='%23ffd166' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html.theme-halloween .logo__ball::before {
+  left: -8%; top: -66%; width: 92%; transform: rotate(-18deg);
+  filter: drop-shadow(0 0 1.5px rgba(214, 186, 255, .9)) drop-shadow(0 0 5px rgba(162, 89, 255, .7)); /* 작은 로고에서도 어두운 모자가 보이게 */
+}
+html.theme-halloween .hero__ball .ball-float { position: relative; }
+html.theme-halloween .hero__ball .ball-float::before {
+  left: 2%; top: -42%; width: 72%; transform: rotate(-16deg);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45));
+}
+html.theme-halloween .hero__ball svg { filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)) drop-shadow(0 0 50px rgba(255, 122, 26, .35)); }
+
+/* 공 뒤에서 빼꼼 내다보는 유령 */
+html.theme-halloween .hero__ball::before {
+  content: ""; position: absolute; z-index: -1; left: -26%; bottom: -4%; width: 40%; aspect-ratio: 60 / 70; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 70'%3E%3Cpath d='M30 4C15 4 6 16 6 31V62L13 56L20 63L27 56L34 63L41 56L48 63L54 57V31C54 16 45 4 30 4Z' fill='%23f3eefe' fill-opacity='.92'/%3E%3Cellipse cx='22' cy='30' rx='4' ry='5.5' fill='%231a0f2b'/%3E%3Cellipse cx='38' cy='30' rx='4' ry='5.5' fill='%231a0f2b'/%3E%3Cellipse cx='30' cy='42' rx='4' ry='5' fill='%231a0f2b'/%3E%3Ccircle cx='16' cy='38' r='3' fill='%23ff9ecb' fill-opacity='.5'/%3E%3Ccircle cx='44' cy='38' r='3' fill='%23ff9ecb' fill-opacity='.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 16px rgba(220, 200, 255, .35));
+  animation: hw-ghost 3.6s var(--ease-io) infinite alternate;
+}
+@keyframes hw-ghost { from { transform: translate(0, 6px) rotate(-6deg); } to { transform: translate(-10px, -12px) rotate(4deg); } }
+
+/* ---------- 메인 화면 밤하늘: 달 · 별 · 박쥐 · 거미 · 거미줄 · 안개 ---------- */
+html.theme-halloween .hero__court { stroke: rgba(185, 140, 255, .2); }
+html.theme-halloween .hero__court .mid { stroke: rgba(255, 122, 26, .6); }
+html.theme-halloween .hero__slash--b { background: linear-gradient(90deg, transparent, rgba(162, 89, 255, .6), transparent); }
+
+.hw-moon {
+  position: absolute; top: 12%; width: clamp(80px, 9vw, 130px); aspect-ratio: 1; border-radius: 50%;
+  /* 큰 공의 왼쪽 위에 떠 있도록 공 위치(오른쪽 여백 + 공 크기)만큼 비켜요 */
+  right: calc(max(4vw, calc((100vw - 1200px) / 2)) + clamp(120px, 20vw, 280px) + 3vw);
+  background:
+    radial-gradient(circle at 30% 35%, rgba(196, 160, 92, .35) 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 62%, rgba(196, 160, 92, .3) 0 13%, transparent 14%),
+    radial-gradient(circle at 56% 24%, rgba(196, 160, 92, .25) 0 6%, transparent 7%),
+    radial-gradient(circle at 38% 38%, #fff8e1, #ffe3a3 55%, #f5c46a);
+  box-shadow: 0 0 40px 10px rgba(255, 214, 140, .22), 0 0 140px 50px rgba(255, 170, 80, .1);
+  opacity: .9;
+}
+
+.hw-stars {
+  position: absolute; inset: 0 0 40% 0; opacity: .55;
+  background-image:
+    radial-gradient(1.6px 1.6px at 24px 34px, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 130px 86px, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 210px 150px, #ffe9c4, transparent),
+    radial-gradient(1px 1px at 290px 44px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 70px 170px, #e3d4ff, transparent);
+  background-size: 320px 200px;
+  -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent);
+  animation: hw-twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes hw-twinkle { from { opacity: .3; } to { opacity: .65; } }
+
+.hw-bat { position: absolute; left: 0; width: 36px; aspect-ratio: 64 / 30; animation: hw-bat-fly 22s linear infinite; }
+.hw-bat::before {
+  content: ""; position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 30'%3E%3Cpath d='M32 10L34 13Q40 5 62 7Q56 11 56 16Q52 13 48 17Q45 13 41 18Q38 15 34 19L32 23L30 19Q26 15 23 18Q19 13 16 17Q12 13 8 16Q8 11 2 7Q24 5 30 13Z' fill='%23241638'/%3E%3Cpath d='M29.5 13L29 7.5L31.3 10.5H32.7L35 7.5L34.5 13Z' fill='%23241638'/%3E%3Ccircle cx='31' cy='12.5' r='.8' fill='%23ffb347'/%3E%3Ccircle cx='33' cy='12.5' r='.8' fill='%23ffb347'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 4px rgba(185, 140, 255, .7));
+  animation: hw-bat-flap .24s ease-in-out infinite alternate;
+}
+.hw-bat--1 { top: 18%; animation-duration: 21s; animation-delay: -3s; }
+.hw-bat--2 { top: 30%; width: 26px; animation-duration: 27s; animation-delay: -15s; }
+.hw-bat--3 { top: 10%; width: 44px; animation-duration: 18s; animation-delay: -9s; animation-direction: reverse; }
+.hw-bat--4 { top: 44%; width: 22px; animation-duration: 31s; animation-delay: -22s; animation-direction: reverse; }
+@keyframes hw-bat-fly {
+  0% { transform: translate(-12vw, 0); }
+  25% { transform: translate(18vw, -4vh); }
+  50% { transform: translate(50vw, 2vh); }
+  75% { transform: translate(82vw, -3vh); }
+  100% { transform: translate(112vw, 1vh); }
+}
+@keyframes hw-bat-flap { to { transform: scaleY(.45) translateY(12%); } }
+
+.hw-web {
+  position: absolute; left: 0; top: 0; width: clamp(120px, 15vw, 220px); aspect-ratio: 1; opacity: .9;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23e2d6ff' stroke-opacity='.22' stroke-width='1.1'%3E%3Cpath d='M0 0L204.5 66.4M0 0L173.9 126.4M0 0L126.4 173.9M0 0L66.4 204.5'/%3E%3Cpath d='M30 0Q25.2 4 28.5 9.3Q22.7 11.6 24.3 17.6Q18 18 17.6 24.3Q11.6 22.7 9.3 28.5Q4 25.2 0 30M64 0Q53.7 8.5 60.9 19.8Q48.4 24.7 51.8 37.6Q38.4 38.4 37.6 51.8Q24.7 48.4 19.8 60.9Q8.5 53.7 0 64M102 0Q85.6 13.6 97 31.5Q77.2 39.3 82.5 60Q61.3 61.3 60 82.5Q39.3 77.2 31.5 97Q13.6 85.6 0 102M144 0Q120.8 19.1 137 44.5Q109 55.5 116.5 84.6Q86.5 86.5 84.6 116.5Q55.5 109 44.5 137Q19.1 120.8 0 144M190 0Q159.4 25.2 180.7 58.7Q143.8 73.3 153.7 111.7Q114.1 114.1 111.7 153.7Q73.3 143.8 58.7 180.7Q25.2 159.4 0 190'/%3E%3C/svg%3E") left top / contain no-repeat;
+}
+
+/* 위에서 실에 매달려 내려오는 거미 */
+.hw-spider {
+  position: absolute; left: 53%; top: -60px; width: 30px; height: calc(clamp(150px, 26vh, 250px) + 60px);
+  transform-origin: 50% 0; animation: hw-spider 4.6s var(--ease-io) infinite alternate;
+}
+.hw-spider::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 20px; width: 1px; background: linear-gradient(rgba(226, 214, 255, 0), rgba(226, 214, 255, .5)); }
+.hw-spider::after {
+  content: ""; position: absolute; left: 0; bottom: 0; width: 30px; aspect-ratio: 1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%232c1c45' stroke-width='2' fill='none' stroke-linecap='round'%3E%3Cpath d='M16 18L8 12L4 16M16 21L6 20L2 25M17 24L9 28L7 34M24 18L32 12L36 16M24 21L34 20L38 25M23 24L31 28L33 34'/%3E%3C/g%3E%3Cellipse cx='20' cy='24' rx='7' ry='8' fill='%232c1c45'/%3E%3Ccircle cx='20' cy='15' r='5' fill='%232c1c45'/%3E%3Ccircle cx='18' cy='14.5' r='1.3' fill='%23ff7a1a'/%3E%3Ccircle cx='22' cy='14.5' r='1.3' fill='%23ff7a1a'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 5px rgba(185, 140, 255, .6));
+}
+@keyframes hw-spider { from { transform: translateY(-44px) rotate(-3deg); } to { transform: translateY(0) rotate(3deg); } }
+
+.hw-fog {
+  position: absolute; left: -10%; right: -10%; bottom: -2%; height: 34%;
+  background:
+    radial-gradient(40% 60% at 20% 72%, rgba(170, 150, 210, .17), transparent 70%),
+    radial-gradient(35% 55% at 60% 82%, rgba(170, 150, 210, .13), transparent 70%),
+    radial-gradient(30% 50% at 90% 72%, rgba(170, 150, 210, .15), transparent 70%);
+  filter: blur(6px);
+  animation: hw-fog 18s var(--ease-io) infinite alternate;
+}
+@keyframes hw-fog { to { transform: translateX(6%); } }
+
+/* 메인 화면 윗줄 · 환영 화면 문구 */
+html.theme-halloween .hero__eyebrow::after {
+  content: "HALLOWEEN"; padding-left: 10px; margin-left: 2px; border-left: 1px solid var(--line-2);
+  color: var(--accent-2); letter-spacing: .14em;
+}
+html.theme-halloween .intro {
+  background: radial-gradient(90% 70% at 50% 45%, rgba(44, 20, 70, .95), rgba(10, 6, 18, 1) 70%), var(--bg);
+}
+html.theme-halloween .intro__slash--b { background: linear-gradient(90deg, transparent, rgba(162, 89, 255, .4) 35%, rgba(162, 89, 255, .6) 50%, rgba(162, 89, 255, .4) 65%, transparent); }
+html.theme-halloween .intro__inner::before {
+  content: "HAPPY HALLOWEEN"; font-family: var(--font-logo); font-size: clamp(14px, 1.8vw, 20px); letter-spacing: .32em;
+  margin-bottom: clamp(44px, 9vw, 110px); /* 공 위의 마녀 모자와 겹치지 않게 */
+  background: linear-gradient(90deg, #ff7a1a, #ffd166 50%, #b47cff); -webkit-background-clip: text; background-clip: text; color: transparent;
+  opacity: 0; transform: translateY(16px);
+}
+html.theme-halloween .intro.is-playing .intro__inner::before { animation: fade-up .9s var(--ease) 1.2s forwards; }
+
+/* ---------- 맨 아래: 묘비 · 호박이 있는 언덕 ---------- */
+html.theme-halloween .footer { position: relative; }
+html.theme-halloween .footer::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 90px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 90'%3E%3Cpath d='M0 80Q60 72 120 78T240 76T360 79T480 77V90H0Z' fill='%23130b20'/%3E%3Cpath d='M40 82V54A14 14 0 0 1 68 54V82Z' fill='%231e1332'/%3E%3Cpath d='M48 60H60M54 55V70' stroke='%2334234f' stroke-width='2.5'/%3E%3Cpath d='M238 80V58M238 66L230 58M238 62L246 52L250 50M230 58L226 57' stroke='%231e1332' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M300 82V54H292V47H300V39H307V47H315V54H307V82Z' fill='%231e1332'/%3E%3Crect x='404' y='60' width='24' height='22' rx='5' fill='%231e1332'/%3E%3Cellipse cx='170' cy='75' rx='17' ry='12.5' fill='%23ff7a1a'/%3E%3Cpath d='M170 63V87M161 64Q155 75 161 86M179 64Q185 75 179 86' stroke='%23c4520b' stroke-width='1.6' fill='none'/%3E%3Cpath d='M169 63Q170 56 175 55' stroke='%234c8a26' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M161 72L165 67L169 72ZM171 72L175 67L179 72ZM160 78Q170 85 180 78L177 81L174 79L171 81L168 79L165 81L162 79Z' fill='%23ffe08a'/%3E%3Cellipse cx='366' cy='79' rx='10' ry='7.5' fill='%23ff8a2a'/%3E%3Cpath d='M365.5 71.5Q366 67 369 66.5' stroke='%234c8a26' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M361 77L363.5 74L366 77ZM366.5 77L369 74L371.5 77ZM361 81Q366 85 371 81Z' fill='%23ffe08a'/%3E%3C/svg%3E") left bottom / 480px 90px repeat-x;
+}
+
+/* ---------- 작은 화면 ---------- */
+@media (max-width: 860px) {
+  .hw-moon { right: 74px; top: 11px; width: 46px; opacity: .8; } /* 상단 메뉴의 로고와 메뉴 버튼 사이 */
+  .hw-spider { display: none !important; }
+  .hw-web { width: 110px; opacity: .6; }
+  .hw-bat--4 { display: none !important; }
+}

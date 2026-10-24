@@ -1469,6 +1469,26 @@ body.is-admin .footer__admin { color: #ffcf7a; border-color: rgba(255, 176, 32, 
 
 .ed-group { display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 18px; background: rgba(255, 255, 255, .025); border: 1px solid var(--line); }
 .ed-group > h3 { font-size: 13px; letter-spacing: .12em; color: var(--ink-3); font-weight: 800; }
+/* 테마 고르기 카드 (관리자 모드 → 테마) */
+.ed-themes { display: grid; gap: 10px; }
+.ed-theme {
+  position: relative; display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 14px;
+  padding: 10px 14px 10px 10px; border-radius: 16px; cursor: pointer;
+  background: rgba(255, 255, 255, .03); border: 1px solid var(--line-2);
+  transition: border-color .25s, background-color .25s, transform .3s var(--ease);
+}
+.ed-theme:hover { border-color: rgba(255, 255, 255, .3); transform: translateY(-1px); }
+.ed-theme input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ed-theme__preview { width: 92px; aspect-ratio: 16 / 10; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .12); }
+.ed-theme__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ed-theme__text b { font-size: 15px; font-weight: 800; }
+.ed-theme__text small { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+.ed-theme__live { align-self: flex-start; margin-top: 3px; padding: 2px 8px; border-radius: 999px; font-style: normal; font-size: 11.5px; font-weight: 700; color: #7ff0c4; background: rgba(46, 230, 182, .12); }
+.ed-theme__check { display: none; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #1a0903; background: var(--accent); }
+.ed-theme:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.ed-theme:has(input:checked) .ed-theme__check { display: inline-flex; }
+.ed-theme:has(input:focus-visible) { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
 .f__label { font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
 .f__hint { font-size: 12px; font-weight: 500; color: var(--ink-3); line-height: 1.5; }
 .f > span .f__hint { margin-left: 6px; }

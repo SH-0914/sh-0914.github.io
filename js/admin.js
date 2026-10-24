@@ -56,6 +56,7 @@
       <div class="edit-dock__actions">
         <button class="ed-btn ed-btn--primary" type="button" data-act="publish">게시하기</button>
         <button class="ed-btn" type="button" data-act="site">사이트 설정</button>
+        <button class="ed-btn" type="button" data-act="theme">테마</button>
         <button class="ed-btn" type="button" data-act="add">+ 캐릭터</button>
         <button class="ed-btn" type="button" data-act="revert">되돌리기</button>
         <button class="ed-btn" type="button" data-act="backup">백업</button>
@@ -464,6 +465,7 @@ service cloud.firestore {
       await ref.set({ json, version });
       T.markPublished(version);
       T.store.remove(DRAFT_KEY);
+      if (drawerKey === 'theme') refreshDrawer(); // '방문자에게 보이는 중' 표시 갱신
       T.toast('게시했어요! 이제 방문자에게도 바로 보여요.', 'ok', 4200);
     } catch (err) {
       T.toast(errorMessage(err) || '게시하지 못했어요.', 'warn', 6500);
@@ -702,6 +704,13 @@ service cloud.firestore {
         ] }
       ]
     },
+    theme: {
+      title: '테마',
+      note: '사이트 전체의 색과 장식을 바꿔요. 테마는 관리자만 고를 수 있어요. 고르면 왼쪽 화면에 바로 미리 보이고, 게시하기를 누르면 방문자에게도 적용돼요. 할로윈이 끝나면 원래 테마를 고르고 다시 게시하세요.',
+      groups: [
+        { title: '사이트 테마', path: 'site', fields: [{ key: 'theme', type: 'theme' }] }
+      ]
+    },
     about: {
       title: '게임 소개',
       groups: [
@@ -887,6 +896,21 @@ service cloud.firestore {
         // options 는 고정 목록이거나, 그때그때 만드는 함수(예: 캐릭터 목록 · 그 캐릭터의 스킨 목록)
         // resets: 이 값을 바꾸면 비워지는 옆 칸 (예: 캐릭터를 바꾸면 스킨 선택을 비움)
         return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text"${f.resets ? ` data-resets="${esc(f.resets)}"` : ''}>${(typeof f.options === 'function' ? f.options(path) : f.options).map(([val, l]) => `<option value="${esc(val)}"${val === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+      case 'theme': {
+        // 테마 고르기 카드 (목록은 app.js 의 THEMES). 방문자에게 지금 보이는 테마도 표시
+        let live = '';
+        try { live = JSON.parse(state.published).content.site.theme; } catch (e) { live = ''; }
+        return `<div class="ed-themes" role="radiogroup" aria-label="사이트 테마">${T.THEMES.map((th) => `
+          <label class="ed-theme">
+            <input type="radio" name="${id}" data-path="${p}" data-type="text" value="${esc(th.id)}"${th.id === v ? ' checked' : ''}>
+            <span class="ed-theme__preview" style="background:${esc(th.preview)}" aria-hidden="true"></span>
+            <span class="ed-theme__text">
+              <b>${esc(th.name)}</b><small>${esc(th.desc)}</small>
+              ${th.id === live ? '<em class="ed-theme__live">방문자에게 보이는 중</em>' : ''}
+            </span>
+            <span class="ed-theme__check" aria-hidden="true">선택됨</span>
+          </label>`).join('')}</div>`;
+      }
       case 'image':
         return imageFieldHTML(f, path, v || '', id);
       case 'list':
@@ -1726,6 +1750,7 @@ service cloud.firestore {
     const act = b.dataset.act;
     if (act === 'publish') publish();
     else if (act === 'site') openDrawer('site');
+    else if (act === 'theme') openDrawer('theme');
     else if (act === 'add') addCharacter();
     else if (act === 'revert') revert();
     else if (act === 'backup') openSheet(backupSheet);
