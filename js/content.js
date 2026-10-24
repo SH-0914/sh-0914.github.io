@@ -68,6 +68,15 @@ window.SITE_CONTENT = {
    * 예) { charId: "sample-spiker", first: "2025.03.01", reruns: ["2025.08.10"], note: "" } */
   history: [],
 
+  /* ---------- 캐릭터 조합 ----------
+   * 함께 편성하면 능력치 보너스가 붙는 조합이에요. 캐릭터 상세 창에 '조합'으로 보여요.
+   * members 는 캐릭터 id, bonus 는 attack(공격력) · defense(수비력) · speed(스피드) · jump(점프력)
+   * 관리자 모드 → 캐릭터 섹션의 '섹션 제목 · 조합 편집'에서 고치고 게시하면 이 목록 대신 게시한 내용이 보여요. */
+  combos: [
+    { name: "작지만 강하다", members: ["char-mvfcq5y0", "char-mvf4ajr1"], bonus: { attack: 7, jump: 4 } },        // 리시아 · 이영섭
+    { name: "올스타", members: ["char-mvf5ydst", "char-mvf57h6v", "char-mvf4ajr1"], bonus: { attack: 4, jump: 4 } } // 한설화 · 김희성 · 이영섭
+  ],
+
   /* ---------- 메인 화면 복각 알림 (RERUN) ----------
    * 캐릭터나 스킨 복각이 잡히면 메인 화면 맨 위에 떠요. skin 을 비우면 캐릭터 복각이에요.
    * 시작일 전에는 'D-3 복각 예정', 기간 중에는 '복각 중', 종료일이 지나면 자동으로 사라져요.

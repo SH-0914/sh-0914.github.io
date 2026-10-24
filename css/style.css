@@ -847,6 +847,36 @@ svg { flex: none; }
 .srow:hover .srow__tip { opacity: 1; transform: none; }
 @keyframes srow-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
 
+/* 조합 (함께 편성하면 능력치 보너스) */
+.combos { display: grid; gap: 12px; }
+.combo {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 14px; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02)); border: 1px solid var(--line);
+  animation: info-in .6s var(--ease) both .15s;
+}
+.combo__name {
+  padding: 0 18px 6px; font-family: var(--font-display); font-weight: 400; font-size: 18px; color: #ffc94a;
+  border-bottom: 2px solid color-mix(in srgb, #ffc94a 70%, transparent);
+}
+.combo__mems { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.combo__mem {
+  position: relative; width: 84px; aspect-ratio: 1; padding: 0; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--line-2); background: radial-gradient(80% 80% at 50% 20%, color-mix(in srgb, var(--c) 30%, transparent), transparent 70%), #0b1328;
+  transition: transform .35s var(--ease), border-color .3s;
+}
+.combo__mem img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+.combo__mem::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(to top, rgba(6, 10, 20, .9), transparent); pointer-events: none; }
+.combo__mem:not(:disabled):hover { transform: translateY(-2px); border-color: var(--c); }
+.combo__mem.is-me { cursor: default; border-color: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent); }
+.combo__tags { position: absolute; z-index: 1; left: 4px; top: 4px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.combo__tags .grade--sm { min-width: 24px; height: 20px; font-size: 12px; padding: 0 4px; }
+.combo__tags i { font-style: normal; font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+.combo__nm { position: absolute; z-index: 1; left: 2px; right: 2px; bottom: 4px; font-size: 12.5px; font-weight: 700; text-align: center; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combo__bonus { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 15px; color: var(--ink-2); }
+.combo__bonus span { display: inline-flex; align-items: center; gap: 6px; }
+.combo__bonus b { color: var(--ink); font-weight: 800; }
+.combo__bonus .stat-ico { width: 22px; height: 22px; }
+
 /* 특성 */
 .traits { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .trait {
@@ -1469,6 +1499,19 @@ body.is-admin .footer__admin { color: #ffcf7a; border-color: rgba(255, 176, 32, 
 
 .ed-group { display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 18px; background: rgba(255, 255, 255, .025); border: 1px solid var(--line); }
 .ed-group > h3 { font-size: 13px; letter-spacing: .12em; color: var(--ink-3); font-weight: 800; }
+/* 캐릭터 여러 명 고르기 · 스탯별 숫자 (관리자 모드 → 캐릭터 조합) */
+.ed-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ed-chip {
+  display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 4px 0 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.ed-chip button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink-2); font-size: 11px; }
+.ed-chip button:hover { background: var(--danger); color: #fff; }
+.ed-statnums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ed-statnums label { display: grid; grid-template-columns: auto 1fr 72px; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.ed-statnums .stat-ico { width: 20px; height: 20px; }
+.ed-statnums input { width: 100%; height: 32px; padding: 0 8px; border-radius: 8px; outline: none; text-align: right; background: rgba(6, 10, 20, .55); border: 1px solid var(--line-2); }
+
 /* 테마 고르기 카드 (관리자 모드 → 테마) */
 .ed-themes { display: grid; gap: 10px; }
 .ed-theme {

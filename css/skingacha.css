@@ -1,0 +1,160 @@
+/* =====================================================================
+ *  스킨 뽑기 시뮬레이터 (js/skingacha.js)
+ *  탭 · 노란 버튼 · 제목 글자는 뽑기 시뮬레이터(css/gacha.css)와 같은 모양을 써요.
+ * ===================================================================== */
+#skinGachaRoot { --ev: #b06bff; }
+
+/* ---------- 카테고리: 뽑기 시뮬레이터 · 스킨 시뮬레이터 (섹션 맨 위) ---------- */
+.gcat {
+  display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: clamp(28px, 4vw, 44px);
+  padding: 6px; border-radius: 20px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line-2);
+}
+.gcat__btn {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px;
+  min-width: 210px; padding: 10px 18px 10px 12px; border: 1px solid transparent; border-radius: 15px; background: none; text-align: left;
+  color: var(--ink-3); transition: background-color .3s, border-color .3s, color .3s, box-shadow .3s;
+}
+.gcat__ico { grid-row: 1 / 3; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; font-size: 19px; background: rgba(255, 255, 255, .06); filter: grayscale(.6); transition: filter .3s; }
+.gcat__btn b { font-size: 16px; font-weight: 800; line-height: 1.25; }
+.gcat__btn small { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.gcat__btn:hover { color: var(--ink-2); background: rgba(255, 255, 255, .04); }
+.gcat__btn.is-active { color: var(--ink); background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .04)); border-color: var(--line-2); box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .8); }
+.gcat__btn.is-active .gcat__ico { filter: none; background: linear-gradient(135deg, #ffd955, #ffb31f); }
+.gcat__btn[data-gcat="skin"].is-active .gcat__ico { background: linear-gradient(135deg, #e2c6ff, #b06bff); }
+@media (max-width: 560px) {
+  .gcat { display: grid; width: 100%; }
+  .gcat__btn { min-width: 0; padding: 8px 10px 8px 8px; column-gap: 8px; }
+  .gcat__ico { width: 32px; height: 32px; font-size: 16px; }
+  .gcat__btn b { font-size: 14px; }
+  .gcat__btn small { font-size: 11px; }
+}
+
+/* 등수 색 */
+.skg-tier--1 { --tc: #ffc94a; }
+.skg-tier--2 { --tc: #c48bff; }
+.skg-tier--3 { --tc: #5fb8ff; }
+
+/* ---------- 큰 카드: 스킨 그림 · 확률표 · 버튼 ---------- */
+.skg {
+  --gc: var(--ev);
+  display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: 22px; padding: 18px;
+  border-radius: var(--r-lg); background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line);
+}
+.skg__art {
+  position: relative; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; align-self: start;
+  background: radial-gradient(80% 70% at 50% 25%, color-mix(in srgb, var(--gc) 45%, transparent), transparent 72%), #0b1328;
+}
+.skg__art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+.skg__art::after { content: ""; position: absolute; inset: 50% 0 0; pointer-events: none; background: linear-gradient(to top, rgba(6, 10, 20, .95) 20%, transparent); }
+.skg__art-cap { position: absolute; z-index: 1; left: 14px; right: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+.skg__art-cap b { font-size: 17px; font-weight: 800; line-height: 1.35; }
+.skg__art-cap small { font-size: 12.5px; color: var(--ink-2); }
+.skg__legend {
+  align-self: flex-start; padding: 2px 9px; border-radius: 999px; font-family: var(--font-logo); font-size: 12px; letter-spacing: .12em; color: #2a1405;
+  background: linear-gradient(120deg, #fff3a6, #ffb020 30%, #ff4fa0 60%, #b06bff 85%, #fff3a6); background-size: 220% 100%;
+  animation: grade-shine 4s linear infinite;
+}
+
+.skg__main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.skg__status p { font-size: 17px; }
+.skg__status b { color: color-mix(in srgb, var(--gc) 30%, #fff); }
+.skg__sub { margin-top: 2px; font-size: 14px !important; color: var(--ink-2); }
+.skg__boost { color: #ffd166; font-weight: 800; }
+.skg__totals { padding: 10px 14px; border-radius: 12px; font-size: 14px; color: var(--ink-2); background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
+.skg__totals b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* 보상 표 (인게임 확률표 모양) */
+.skg-tbl { display: flex; flex-direction: column; gap: 6px; }
+.skg-tbl__row {
+  display: grid; grid-template-columns: 60px minmax(0, 1fr) 76px 92px; align-items: center; gap: 10px;
+  min-height: 54px; padding: 6px 14px; border-radius: 12px; background: rgba(255, 255, 255, .035);
+  transition: opacity .3s, background-color .3s;
+}
+.skg-tbl__row--head, .skg-tbl__row--sum { min-height: 36px; background: rgba(255, 255, 255, .05); font-size: 13px; font-weight: 700; color: var(--ink-3); }
+.skg-tbl__row--sum { color: var(--ink-2); }
+.skg-tbl__row--head > :last-child { text-align: right; }
+.skg-tbl__tier { font-weight: 800; color: var(--tc); }
+.skg-tbl__item { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.skg-tbl__item b { font-size: 14.5px; font-weight: 700; overflow-wrap: anywhere; }
+.skg-tbl__state { font-size: 13px; color: var(--ink-3); }
+.skg-tbl__rate { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; }
+.skg-tbl__row.is-owned { opacity: .45; }
+.skg-tbl__row.is-owned .skg-tbl__state { color: #7ff0c4; font-weight: 700; }
+.skg-tbl__row.is-fresh { opacity: 1; background: color-mix(in srgb, var(--tc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 55%, transparent); }
+
+.skg-ico {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; overflow: hidden;
+  font-size: 22px; line-height: 1; background: rgba(255, 255, 255, .06);
+}
+.skg-ico img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
+.skg-ico--skin { box-shadow: 0 0 0 1px rgba(255, 201, 74, .6); }
+.skg-ico--exp { font-family: var(--font-logo); font-size: 12px; letter-spacing: .04em; color: #062a2a; background: linear-gradient(135deg, #8ff7e8, #3ad1d6); }
+.skg-ico--blue { filter: hue-rotate(190deg) saturate(1.4); }
+.skg-ico--purple { filter: hue-rotate(250deg) saturate(1.3); }
+
+/* 방금 뽑은 결과 */
+.skg-res { display: flex; flex-direction: column; gap: 8px; }
+.skg-res__hint { padding: 12px 14px; border-radius: 12px; font-size: 13.5px; color: var(--ink-3); border: 1px dashed var(--line-2); }
+.skg-res__sum { font-size: 14.5px; color: var(--ink-2); }
+.skg-res__sum b { color: var(--ink); }
+.skg-res__card {
+  display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px;
+  background: color-mix(in srgb, var(--tc) 14%, rgba(6, 10, 20, .6)); border: 1px solid color-mix(in srgb, var(--tc) 60%, transparent);
+}
+.skg-res__card .skg-ico { width: 52px; height: 52px; font-size: 28px; }
+.skg-res__card small { display: block; font-size: 12.5px; font-weight: 800; letter-spacing: .04em; color: var(--tc); }
+.skg-res__card b { font-size: 17px; }
+.skg-res__card.is-legend { box-shadow: 0 0 0 2px rgba(255, 201, 74, .5), 0 0 40px -6px rgba(255, 176, 32, .7); animation: skg-legend 1.6s ease-in-out infinite alternate; }
+@keyframes skg-legend { to { box-shadow: 0 0 0 2px rgba(255, 79, 160, .55), 0 0 50px -4px rgba(176, 107, 255, .8); } }
+.skg-res__list { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.skg-res__list li { padding: 4px 10px; border-radius: 999px; font-size: 12.5px; color: var(--ink-2); background: rgba(255, 255, 255, .05); border: 1px solid color-mix(in srgb, var(--tc) 40%, transparent); }
+.skg-res__list li span { margin-right: 6px; font-weight: 800; color: var(--tc); }
+
+.skg__btns { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.skg__btns .gx-ybtn { flex-direction: column; gap: 0; line-height: 1.15; }
+.skg__btns .gx-ybtn small { font-size: 11.5px; font-weight: 700; opacity: .75; }
+.skg__btns .gx-ybtn:disabled, .skg__btns .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; filter: none; }
+.skg-btn--alt { background: linear-gradient(180deg, #e2c6ff, #b06bff); color: #1c0b33; }
+.skg__spent { font-size: 13.5px; color: var(--ink-3); }
+.skg__spent b { color: var(--ink-2); }
+
+/* ---------- 아래 카드: 회차별 확률표 · 평균 비용 · 규칙 ---------- */
+.skg-info { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.skg-card { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 18px; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); }
+.skg-card h3 { font-size: 13px; letter-spacing: .12em; color: var(--ink-3); font-weight: 800; }
+.skg-card__note { font-size: 12.5px; color: var(--ink-3); line-height: 1.6; }
+.skg-card--rules ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+
+.skg-rounds { display: flex; flex-direction: column; gap: 3px; }
+.skg-rounds__row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 6px 10px; border-radius: 8px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.skg-rounds__row--head { font-size: 12px; font-weight: 700; color: var(--ink-3); }
+.skg-rounds__row:not(.skg-rounds__row--head) { background: rgba(255, 255, 255, .03); }
+.skg-rounds__row.is-past { opacity: .4; }
+.skg-rounds__row.is-now { background: color-mix(in srgb, var(--ev) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ev) 60%, transparent); font-weight: 800; }
+
+.skg-odds__lead { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; }
+.skg-odds__lead b { color: var(--ink); }
+.skg-odds__bars { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); align-items: end; gap: 4px; height: 130px; }
+.skg-odds__bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; height: 100%; }
+.skg-odds__fill { width: 100%; height: var(--h); min-height: 2px; border-radius: 6px 6px 2px 2px; background: linear-gradient(to top, color-mix(in srgb, var(--ev) 60%, transparent), var(--ev)); }
+.skg-odds__bar b { font-size: 10.5px; font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.skg-odds__bar small { font-size: 11px; color: var(--ink-3); }
+.skg-odds__bar.is-zero b { color: var(--ink-3); }
+.skg-odds__note { font-size: 12.5px; color: var(--ink-3); line-height: 1.6; }
+
+@media (max-width: 1000px) {
+  .skg-info { grid-template-columns: 1fr 1fr; }
+  .skg-card--rules { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .skg { grid-template-columns: 1fr; padding: 12px; }
+  .skg__art { aspect-ratio: 4 / 3; }
+  .skg-info { grid-template-columns: 1fr; }
+  .skg-tbl__row { grid-template-columns: 44px minmax(0, 1fr) 76px; padding: 6px 10px; gap: 8px; }
+  .skg-tbl__row > :nth-child(3) { display: none; } /* 획득 상태 칸 — 얻은 보상은 흐리게 보여서 알 수 있어요 */
+  .skg-tbl__tier { font-size: 13px; }
+  .skg-tbl__rate { font-size: 13px; white-space: nowrap; }
+  .skg-tbl__item b { font-size: 13.5px; }
+  .skg-ico { width: 34px; height: 34px; font-size: 19px; }
+  .skg__btns .gx-ybtn { flex: 1 1 140px; }
+}

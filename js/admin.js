@@ -739,9 +739,16 @@ service cloud.firestore {
     },
     characters: {
       title: '캐릭터 섹션',
-      note: '캐릭터 정보(등급 · 별명 · 신규 강조 · 스탯 등)는 캐릭터 카드를 눌러서 편집해요. 목록은 항상 등급순(S+ → A-)으로 보여요.',
+      note: '캐릭터 정보(등급 · 별명 · 신규 강조 · 스탯 등)는 캐릭터 카드를 눌러서 편집해요. 목록은 항상 등급순(S+ → A-)으로 보여요. 조합은 들어간 캐릭터의 상세 창마다 보여요.',
       groups: [
-        { title: '섹션 제목', path: 'sections.characters', fields: SECTION_FIELDS }
+        { title: '섹션 제목', path: 'sections.characters', fields: SECTION_FIELDS },
+        { title: '캐릭터 조합', path: '', fields: [
+          { key: 'combos', type: 'list', titleKey: 'name', addLabel: '+ 조합 추가', of: { type: 'object', fields: [
+            { key: 'name', label: '조합 이름', type: 'text', placeholder: '예: 작지만 강하다' },
+            { key: 'members', label: '캐릭터 (함께 편성하는 선수)', type: 'chars' },
+            { key: 'bonus', label: '능력치 보너스 (없는 칸은 비워 두세요)', type: 'stats' }
+          ] } }
+        ] }
       ]
     },
     modes: {
@@ -858,7 +865,8 @@ service cloud.firestore {
       f.fields.forEach((sf) => { o[sf.key] = blank(sf); });
       return o;
     }
-    if (f.type === 'list' || f.type === 'tags' || f.type === 'lines') return [];
+    if (f.type === 'list' || f.type === 'tags' || f.type === 'lines' || f.type === 'chars') return [];
+    if (f.type === 'stats') return {};
     if (f.type === 'bool') return false;
     return '';
   }
@@ -896,6 +904,19 @@ service cloud.firestore {
         // options 는 고정 목록이거나, 그때그때 만드는 함수(예: 캐릭터 목록 · 그 캐릭터의 스킨 목록)
         // resets: 이 값을 바꾸면 비워지는 옆 칸 (예: 캐릭터를 바꾸면 스킨 선택을 비움)
         return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text"${f.resets ? ` data-resets="${esc(f.resets)}"` : ''}>${(typeof f.options === 'function' ? f.options(path) : f.options).map(([val, l]) => `<option value="${esc(val)}"${val === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+      case 'chars': {
+        // 캐릭터 여러 명 고르기 (조합 멤버) — 고른 순서대로 보여요
+        const ids = Array.isArray(v) ? v : [];
+        const chips = ids.map((cid, i) => `<span class="ed-chip">${esc(TITLE_MAPS.char(cid))}<button type="button" data-chars-remove="${p}" data-i="${i}" aria-label="빼기">✕</button></span>`).join('');
+        const opts = charOptions().filter(([cid]) => cid && !ids.includes(cid));
+        return `<div class="f">${label}<div class="ed-chips">${chips || '<span class="f__hint">아직 없어요.</span>'}</div>
+          <select id="${id}" data-chars-add="${p}"><option value="">+ 캐릭터 추가</option>${opts.map(([val, l]) => `<option value="${esc(val)}">${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+      }
+      case 'stats':
+        // 스탯별 숫자 (예: 조합 보너스 공격력 +7)
+        return `<div class="f">${label}<div class="ed-statnums">${state.data.statDefs.map((d) => `
+          <label style="--sc:${d.color}">${T.statIcon(d.icon)}<span>${esc(d.name)}</span>
+            <input type="number" step="1" inputmode="numeric" data-path="${esc(path + '.' + d.key)}" data-type="num" value="${esc(v && v[d.key] != null ? v[d.key] : '')}" placeholder="—"></label>`).join('')}</div>${hint}</div>`;
       case 'theme': {
         // 테마 고르기 카드 (목록은 app.js 의 THEMES). 방문자에게 지금 보이는 테마도 표시
         let live = '';
@@ -1060,10 +1081,20 @@ service cloud.firestore {
   ['input', 'change', 'compositionend'].forEach((type) => drawerBody.addEventListener(type, onFieldInput));
   function onFieldInput(e) {
     const t = e.target;
+    // 조합 멤버 추가 (캐릭터 고르기 목록)
+    if (t.dataset.charsAdd) {
+      if (e.type !== 'change' || !t.value) return;
+      const arr = getAt(state.content, t.dataset.charsAdd);
+      if (Array.isArray(arr) && !arr.includes(t.value)) arr.push(t.value);
+      openKeys = captureOpen();
+      afterListChange();
+      return;
+    }
     const path = t.dataset.path;
     if (!path) return;
     let v;
     if (t.dataset.type === 'bool') v = t.checked;
+    else if (t.dataset.type === 'num') v = t.value.trim() === '' || !Number.isFinite(Number(t.value)) ? '' : Number(t.value);
     else if (t.dataset.type === 'tags') v = t.value.split(',').map((s) => s.trim()).filter(Boolean);
     else if (t.dataset.type === 'lines') v = t.value.split('\n').map((s) => s.trim()).filter(Boolean);
     else v = t.value;
@@ -1085,6 +1116,15 @@ service cloud.firestore {
     const b = e.target.closest('button');
     if (!b) return;
     if (b.closest('summary')) e.preventDefault(); // 버튼을 눌러도 카드가 접히지 않게
+
+    // 조합 멤버 빼기
+    if (b.dataset.charsRemove) {
+      const arr = getAt(state.content, b.dataset.charsRemove);
+      if (Array.isArray(arr)) arr.splice(Number(b.dataset.i), 1);
+      openKeys = captureOpen();
+      afterListChange();
+      return;
+    }
 
     // 출시 · 복각: 아직 목록에 없는 S+ 캐릭터를 한 번에 추가
     if (b.hasAttribute('data-history-fill')) {

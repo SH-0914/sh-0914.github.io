@@ -69,6 +69,8 @@
 
   // 게시된 내용에 공식 채널이 아직 없으면 content.js 의 기본 링크를 보여줍니다.
   const DEFAULT_LINKS = list(obj(window.SITE_CONTENT).links);
+  // 게시된 내용에 캐릭터 조합이 아직 없으면 content.js 의 기본 조합을 보여줍니다.
+  const DEFAULT_COMBOS = list(obj(window.SITE_CONTENT).combos);
 
   function normalizeContent(input) {
     const src = obj(input);
@@ -130,6 +132,13 @@
         reruns: list(h.reruns).map(str).filter((s) => s.trim()),
         note: str(h.note)
       })),
+      // 캐릭터 조합: 함께 편성하면 능력치 보너스 (members 는 캐릭터 id, bonus 는 { attack: 7, jump: 4 })
+      combos: (src.combos === undefined ? DEFAULT_COMBOS : list(src.combos)).map(obj).map((k) => {
+        const b = obj(k.bonus);
+        const bonus = {};
+        STAT_DEFS.forEach((d) => { const n = Number(b[d.key]); if (Number.isFinite(n) && n) bonus[d.key] = n; });
+        return { name: str(k.name), members: list(k.members).map(str).filter(Boolean), bonus };
+      }),
       // 메인 화면 복각 알림 (skin 이 비어 있으면 캐릭터 복각)
       rerunNotices: list(src.rerunNotices).map(obj).map((r) => ({
         charId: str(r.charId), skin: str(r.skin), start: str(r.start), end: str(r.end)
@@ -668,7 +677,7 @@
         <span class="shead__eyebrow"><i>${esc(el.dataset.num)}</i>${esc(s.eyebrow)}</span>
         <h2 class="shead__title">${esc(s.title)}</h2>
         ${s.desc ? `<p class="shead__desc">${multiline(s.desc)}</p>` : ''}
-        ${editButton(key, key === 'characters' ? '섹션 제목 편집' : '이 섹션 편집')}`;
+        ${editButton(key, key === 'characters' ? '섹션 제목 · 조합 편집' : '이 섹션 편집')}`;
     });
     $$('.nav__links a[data-section]').forEach((a) => {
       const s = secs[a.dataset.section];
@@ -1428,7 +1437,36 @@
       return;
     }
     box.innerHTML = infoHTML(c);
+    $$('img[data-combo-img]', box).forEach((img) => {
+      const m = getChar(img.dataset.comboImg);
+      if (m) setImg(img, m.image, placeholder(m.name, m.color), 'thumb');
+    });
     animateCounts(box);
+  }
+
+  // 이 캐릭터가 들어간 조합 (함께 편성하면 능력치 보너스)
+  function combosHTML(c) {
+    const mine = state.content.combos.filter((k) => k.members.includes(c.id));
+    if (!mine.length) return '';
+    return `
+      <section class="block">
+        <div class="block__head"><h3 class="block__title">조합<small>${mine.length}</small></h3></div>
+        <div class="combos">${mine.map((k) => {
+          const bonus = state.data.statDefs.filter((d) => k.bonus[d.key]);
+          return `
+          <article class="combo">
+            <h4 class="combo__name">${esc(k.name || '이름 없는 조합')}</h4>
+            <div class="combo__mems">${k.members.map(getChar).filter(Boolean).map((m) => `
+              <button type="button" class="combo__mem${m.id === c.id ? ' is-me' : ''}" style="--c:${safeColor(m.color)}"${m.id === c.id ? ' disabled' : ` data-open-char="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"`}>
+                <img data-combo-img="${esc(m.id)}" alt="" decoding="async">
+                <span class="combo__tags">${gradeBadge(m.grade, ' grade--sm')}${POS_CODES[m.position] ? `<i>${esc(POS_CODES[m.position])}</i>` : ''}</span>
+                <span class="combo__nm">${esc(m.name || '이름 없음')}</span>
+              </button>`).join('')}
+            </div>
+            ${bonus.length ? `<p class="combo__bonus">${bonus.map((d) => `<span style="--sc:${d.color}">${statIcon(d.icon)}${esc(d.name)} <b>${k.bonus[d.key] > 0 ? '+' : ''}${k.bonus[d.key]}</b></span>`).join('')}</p>` : ''}
+          </article>`;
+        }).join('')}</div>
+      </section>`;
   }
 
   // 스탯 숫자가 0부터 올라가는 효과
@@ -1509,7 +1547,7 @@
         <div class="block__head"><h3 class="block__title">출시 · 복각</h3></div>
         <div class="hist hist--inline">${historyRowsHTML(he)}</div>
       </section>` : '';
-    return head + desc + profile + stats + history + traits;
+    return head + desc + profile + stats + combosHTML(c) + history + traits;
   }
 
   function renderSkinStrip() {

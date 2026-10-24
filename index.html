@@ -56,6 +56,8 @@
   <link rel="stylesheet" href="css/style.css">
   <!-- 뽑기 시뮬레이터 디자인 -->
   <link rel="stylesheet" href="css/gacha.css">
+  <!-- 스킨 뽑기 시뮬레이터 디자인 (뽑기 시뮬레이터 안의 카테고리) -->
+  <link rel="stylesheet" href="css/skingacha.css">
   <!-- 할로윈 테마 (관리자 모드 → 테마에서 골랐을 때만 적용) -->
   <link rel="stylesheet" href="css/halloween.css">
 </head>
@@ -199,7 +201,8 @@
       </div>
     </section>
 
-    <!-- ============ 뽑기 시뮬레이터 (내용은 js/gacha.js 에서 그려요) ============ -->
+    <!-- ============ 뽑기 시뮬레이터 (내용은 js/gacha.js 에서 그려요) ============
+         맨 위의 '뽑기 · 스킨 시뮬레이터' 카테고리와 스킨 화면은 js/skingacha.js 가 만들어요 -->
     <section class="section section--gacha" id="gacha">
       <div class="container" id="gachaRoot"></div>
     </section>
@@ -298,5 +301,7 @@
   <script src="js/admin.js"></script>
   <!-- 뽑기 시뮬레이터 -->
   <script src="js/gacha.js"></script>
+  <!-- 스킨 뽑기 시뮬레이터 -->
+  <script src="js/skingacha.js"></script>
 </body>
 </html>
