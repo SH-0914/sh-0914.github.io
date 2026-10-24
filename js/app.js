@@ -221,7 +221,7 @@
         stats,
         total,
         traits: list(c.traits).map(obj).map((t) => ({ icon: str(t.icon), name: str(t.name), tag: str(t.tag), desc: str(t.desc) })),
-        skins: list(c.skins).map(obj).map((s) => ({ name: str(s.name), rarity: str(s.rarity), image: str(s.image), howToGet: str(s.howToGet) }))
+        skins: list(c.skins).map(obj).map((s) => ({ name: str(s.name), rarity: str(s.rarity), image: str(s.image), howToGet: str(s.howToGet), isNew: s.isNew === true }))
       };
     });
     return { statDefs, positions, characters };
@@ -1119,6 +1119,31 @@
   }
   const visibleOrder = (arr) => [...arr].sort((a, b) => gradeRank(a.grade) - gradeRank(b.grade));
 
+  // 메인 화면의 '신규 스킨' 안내 (누르면 그 스킨이 선택된 상세 창이 열려요)
+  function renderHeroNewSkin() {
+    const box = $('#heroNewSkin');
+    if (!box) return;
+    const fresh = visibleOrder(state.data.characters).flatMap((c) =>
+      c.skins.map((s, i) => ({ c, s, i })).filter((x) => x.s.isNew));
+    box.hidden = !fresh.length;
+    box.innerHTML = fresh.length ? `
+      <span class="hero__new-tag">NEW</span>
+      <span class="hero__new-label">신규 스킨</span>
+      ${fresh.map(({ c, s, i }) => `
+        <button type="button" class="hero__new-btn" data-open-char="${esc(c.id)}" data-open-skin="${i}" style="--c:${safeColor(c.color)}">
+          ${gradeBadge(c.grade, ' grade--sm')}
+          <b>${esc(c.name || '이름 없음')}</b><small>${esc(s.name || '이름 없는')} 스킨</small>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>`).join('')}` : '';
+  }
+
+  // 메인 화면 안내 줄 (신규 캐릭터 · 신규 스킨 · 복각)
+  function renderHeroRows() {
+    renderHeroNew();
+    renderHeroNewSkin();
+    renderHeroRerun();
+  }
+
   // 메인 화면의 'RERUN' (복각) 안내: 시작 전엔 D-day, 기간 중엔 '복각 중', 종료일이 지나면 숨겨요
   const shortDate = (d) => `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`;
   function rerunEntries() {
@@ -1285,8 +1310,7 @@
     grid.appendChild(extraGrid);
     emit('gridrender', extraGrid);
     $('#charEmpty').hidden = shownList.length > 0 || state.editing;
-    renderHeroNew();
-    renderHeroRerun();
+    renderHeroRows();
 
     // FLIP: 새 위치에서 이전 위치로부터 미끄러지듯 이동
     if (animate) {
@@ -1485,7 +1509,7 @@
     wrap.innerHTML = items.map((s, i) => {
       const isOn = i - 1 === state.skinIndex;
       return `<button type="button" class="skin${isOn ? ' is-active' : ''}" role="option" aria-selected="${isOn}" data-skin="${i - 1}">
-        <span class="skin__thumb"><img alt="" loading="lazy" decoding="async"></span>
+        <span class="skin__thumb"><img alt="" loading="lazy" decoding="async">${s.isNew ? '<span class="skin__new">NEW</span>' : ''}</span>
         <span class="skin__label">${esc(s.base ? '기본' : s.name || `스킨 ${i}`)}</span>
       </button>`;
     }).join('');
@@ -1519,7 +1543,7 @@
 
     const info = $('#mSkinInfo');
     info.innerHTML = skin
-      ? `<div class="skin-info__row"><b>${esc(skin.name || '이름 없는 스킨')}</b>${skin.rarity ? `<span class="rarity ${rarityClass(skin.rarity)}">${esc(skin.rarity)}</span>` : ''}</div>
+      ? `<div class="skin-info__row">${skin.isNew ? '<span class="new-badge">NEW</span>' : ''}<b>${esc(skin.name || '이름 없는 스킨')}</b>${skin.rarity ? `<span class="rarity ${rarityClass(skin.rarity)}">${esc(skin.rarity)}</span>` : ''}</div>
          ${skin.howToGet ? `<p>획득 방법 · ${multiline(skin.howToGet)}</p>` : ''}`
       : `<div class="skin-info__row"><b>기본 모습</b></div>${c.skins.length ? '<p>아래에서 스킨을 골라 미리 볼 수 있어요.</p>' : ''}`;
     if (animateInfo && !reduceMotion) {
@@ -1782,7 +1806,7 @@
     previewMap, setImg, getImageURL, hydrateImages, placeholder, safeColor, rarityClass,
     statTotal, statSum, getChar, current, allPositions,
     STAT_ICONS, statIcon, POSITIONS, GRADES, CHAR_COLORS, gradeBadge,
-    renderChips, renderCharacters, refreshCard, updateHeroCounts, refreshAll, refreshEverything, renderContent,
+    renderChips, renderCharacters, refreshCard, updateHeroCounts, renderHeroRows, refreshAll, refreshEverything, renderContent,
     openCharacter, closeCharacter, renderModal, renderInfo, renderSkinStrip, refreshStage, selectSkin, updateModalCount,
     setEditing, toast, observeReveal,
     ready: null,

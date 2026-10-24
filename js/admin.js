@@ -1289,7 +1289,7 @@ service cloud.firestore {
   const NEW_ITEM = {
     profile: () => ({ label: '', value: '' }),
     traits: () => ({ icon: '', name: '', tag: '', desc: '' }),
-    skins: () => ({ name: '', rarity: '', image: '', howToGet: '' })
+    skins: () => ({ name: '', rarity: '', image: '', howToGet: '', isNew: false })
   };
 
   function ctrlHTML(kind, i, n) {
@@ -1334,6 +1334,11 @@ service cloud.firestore {
           <button class="ed-btn" type="button" data-pick="skin" data-i="${i}">이미지 올리기</button>
         </div>
         <input ${a('howToGet')} placeholder="획득 방법 (예: 시즌 1 패스 50레벨)">
+        <label class="switch">
+          <input type="checkbox" ${a('isNew')}>
+          <span class="switch__ui" aria-hidden="true"></span>
+          <span class="switch__label">신규 스킨 — NEW 표시 · 메인 화면 맨 위에 소개</span>
+        </label>
       </div>
     </div>`;
   }
@@ -1347,7 +1352,10 @@ service cloud.firestore {
       return;
     }
     wrap.innerHTML = arr.map((_, i) => itemHTML(kind, i, arr.length)).join('');
-    $$('[data-k]', wrap).forEach((inp) => { inp.value = arr[Number(inp.dataset.i)][inp.dataset.k] ?? ''; });
+    $$('[data-k]', wrap).forEach((inp) => {
+      const v = arr[Number(inp.dataset.i)][inp.dataset.k];
+      if (inp.type === 'checkbox') inp.checked = !!v; else inp.value = v ?? '';
+    });
     if (kind === 'skins') refreshSkinThumbs(c);
   }
 
@@ -1427,10 +1435,13 @@ service cloud.firestore {
       const i = Number(t.dataset.i);
       const item = c[kind] && c[kind][i];
       if (!item) return;
-      item[t.dataset.k] = t.value;
+      item[t.dataset.k] = t.type === 'checkbox' ? t.checked : t.value;
       if (kind === 'skins') {
-        if (t.dataset.k === 'image' || t.dataset.k === 'name') refreshVisual(state.skinIndex === i);
-        if (state.skinIndex === i && (t.dataset.k === 'rarity' || t.dataset.k === 'howToGet' || t.dataset.k === 'name')) T.refreshStage(true);
+        const k = t.dataset.k;
+        if (k === 'image' || k === 'name' || k === 'isNew') refreshVisual(state.skinIndex === i);
+        if (state.skinIndex === i && (k === 'rarity' || k === 'howToGet' || k === 'name' || k === 'isNew')) T.refreshStage(true);
+        // 스킨 이름 · 신규 표시는 메인 화면 안내(신규 스킨 · 복각)에도 보여요
+        if (k === 'name' || k === 'isNew') T.renderHeroRows();
       }
       T.persist();
     }

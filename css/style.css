@@ -780,6 +780,11 @@ svg { flex: none; }
   transition: border-color .35s var(--ease), box-shadow .35s var(--ease), transform .45s var(--ease);
 }
 .skin__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
+.skin__new {
+  position: absolute; left: 4px; top: 4px; padding: 2px 6px; border-radius: 999px;
+  font-family: var(--font-logo); font-size: 10px; letter-spacing: .1em; line-height: 1.2; color: #1a0903;
+  background: linear-gradient(120deg, #ffe066, #ff7a2e 45%, #ff4fa0);
+}
 .skin__label { display: block; margin-top: 6px; font-size: 11.5px; font-weight: 600; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .skin:hover { color: var(--ink-2); }
 .skin:hover .skin__thumb { transform: translateY(-2px); border-color: var(--line-2); }
