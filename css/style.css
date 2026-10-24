@@ -1119,6 +1119,14 @@ svg { flex: none; }
 .hero__update-play { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #ff0033; }
 .hero__update-play svg { width: 13px; height: 13px; margin-left: 2px; fill: #fff; }
 
+/* 메인 화면 'RERUN' (복각) 안내 */
+.hero__rerun { background: linear-gradient(120deg, rgba(50, 212, 255, .12), rgba(176, 107, 255, .1)); border-color: rgba(90, 170, 255, .38); }
+.hero__rerun-tag { color: #04121c; background: linear-gradient(120deg, #a6f4ff, #32d4ff 45%, #b06bff); background-size: 200% 100%; animation: rerun-pulse 2s ease-out infinite, grade-shine 3s linear infinite; }
+@keyframes rerun-pulse { 0% { box-shadow: 0 0 0 0 rgba(50, 212, 255, .5); } 100% { box-shadow: 0 0 0 10px rgba(50, 212, 255, 0); } }
+.hero__rerun-when { padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; color: var(--cyan); background: rgba(50, 212, 255, .14); }
+.hero__rerun-btn.is-soon .hero__rerun-when { color: var(--ink-2); background: rgba(255, 255, 255, .08); }
+@media (max-width: 520px) { .hero__rerun-btn { height: auto; min-height: 40px; padding-block: 6px; flex-wrap: wrap; } }
+
 /* =====================================================================
  *  공식 채널
  * ===================================================================== */
@@ -1424,7 +1432,7 @@ img.is-pending { opacity: 0; }
 }
 .sec-edit:hover { background: rgba(255, 176, 32, .16); border-style: solid; transform: translateY(-1px); }
 body.is-editing .sec-edit { display: inline-flex; }
-.hero__inner > .sec-edit { margin-top: -6px; }
+.hero__edits { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -6px; }
 
 .footer__links { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .footer__admin {

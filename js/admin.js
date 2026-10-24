@@ -661,6 +661,14 @@ service cloud.firestore {
     const sorted = [...state.data.characters].sort((a, b) => rank(a.grade) - rank(b.grade));
     return [['', '캐릭터 선택'], ...sorted.map((c) => [c.id, `${charLabel(c)} · ${c.position || '포지션 미정'}`])];
   }
+  // 복각 알림: 고른 캐릭터의 스킨 목록 (path 는 이 칸의 위치, 예: rerunNotices.0.skin)
+  function skinOptions(path) {
+    const item = getAt(state.content, path.replace(/\.[^.]+$/, '')) || {};
+    const c = T.getChar(item.charId);
+    const names = c ? c.skins.map((s) => s.name).filter(Boolean) : [];
+    if (item.skin && !names.includes(item.skin)) names.push(item.skin);
+    return [['', c ? '캐릭터 복각 (스킨 아님)' : '먼저 캐릭터를 골라 주세요'], ...names.map((n) => [n, `${n} 스킨`])];
+  }
   const TITLE_MAPS = {
     char: (id) => {
       const c = T.getChar(id);
@@ -758,6 +766,20 @@ service cloud.firestore {
             { key: 'first', label: '첫 출시일', type: 'text', placeholder: '예: 2025.03.01' },
             { key: 'reruns', label: '복각 날짜 (한 줄에 하나씩, 오래된 순서로)', type: 'lines', rows: 3, placeholder: '예:\n2025.06.10\n2025.10.01' },
             { key: 'note', label: '메모 (선택)', type: 'text', placeholder: '예: 할로윈 이벤트와 함께 복각' }
+          ] } }
+        ] }
+      ]
+    },
+    reruns: {
+      title: '복각 알림 (메인 화면)',
+      note: "캐릭터나 스킨 복각이 잡히면 여기에 추가하세요. 메인 화면 맨 위에 RERUN 으로 떠요. 시작일 전에는 'D-3 복각 예정', 기간 중에는 '복각 중'으로 보이고, 종료일이 지나면 자동으로 사라져요. 날짜는 2026.10.30 처럼 일까지 적어 주세요.",
+      groups: [
+        { title: '복각 목록', path: '', fields: [
+          { key: 'rerunNotices', type: 'list', titleKey: 'charId', titleMap: 'char', addLabel: '+ 복각 추가', of: { type: 'object', fields: [
+            { key: 'charId', label: '캐릭터', type: 'select', options: () => charOptions(), resets: 'skin' },
+            { key: 'skin', label: '스킨 (스킨 복각일 때만 고르세요)', type: 'select', options: (path) => skinOptions(path) },
+            { key: 'start', label: '복각 시작일', type: 'text', placeholder: '예: 2026.10.30' },
+            { key: 'end', label: '복각 종료일 (이 날이 지나면 자동으로 사라져요)', type: 'text', placeholder: '예: 2026.11.12' }
           ] } }
         ] }
       ]
@@ -862,8 +884,9 @@ service cloud.firestore {
       case 'bool':
         return `<label class="switch"><input type="checkbox" data-path="${p}" data-type="bool"${v ? ' checked' : ''}><span class="switch__ui" aria-hidden="true"></span><span class="switch__label">${esc(f.label)}</span></label>`;
       case 'select':
-        // options 는 고정 목록이거나, 그때그때 만드는 함수(예: 캐릭터 목록)
-        return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text">${(typeof f.options === 'function' ? f.options() : f.options).map(([val, l]) => `<option value="${esc(val)}"${val === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${hint}</div>`;
+        // options 는 고정 목록이거나, 그때그때 만드는 함수(예: 캐릭터 목록 · 그 캐릭터의 스킨 목록)
+        // resets: 이 값을 바꾸면 비워지는 옆 칸 (예: 캐릭터를 바꾸면 스킨 선택을 비움)
+        return `<div class="f">${label}<select id="${id}" data-path="${p}" data-type="text"${f.resets ? ` data-resets="${esc(f.resets)}"` : ''}>${(typeof f.options === 'function' ? f.options(path) : f.options).map(([val, l]) => `<option value="${esc(val)}"${val === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>${hint}</div>`;
       case 'image':
         return imageFieldHTML(f, path, v || '', id);
       case 'list':
@@ -1026,6 +1049,10 @@ service cloud.firestore {
       el.textContent = shown || '(이름 없음)';
     });
     if ($(`img[data-preview="${cssEsc(path)}"]`, drawerBody)) updatePreview(path);
+    if (t.dataset.resets && e.type === 'change') {
+      setAt(state.content, path.replace(/[^.]+$/, t.dataset.resets), '');
+      refreshDrawer(); // 바뀐 캐릭터의 스킨 목록으로 다시 그리기
+    }
     scheduleContentRender();
     T.persist();
   }

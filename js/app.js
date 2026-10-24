@@ -119,6 +119,10 @@
         reruns: list(h.reruns).map(str).filter((s) => s.trim()),
         note: str(h.note)
       })),
+      // 메인 화면 복각 알림 (skin 이 비어 있으면 캐릭터 복각)
+      rerunNotices: list(src.rerunNotices).map(obj).map((r) => ({
+        charId: str(r.charId), skin: str(r.skin), start: str(r.start), end: str(r.end)
+      })),
       // 업데이트 · 트레일러 (목록 맨 위가 최신, 크게 보여요)
       updates: list(src.updates).map(obj).map((u) => ({
         title: str(u.title), date: str(u.date), video: str(u.video), desc: str(u.desc), image: str(u.image),
@@ -1052,6 +1056,7 @@
     renderCurrencies();
     renderUpdates();
     renderHistory();
+    renderHeroRerun();
     renderLinks();
     renderFooter();
     if (state.editing) revealAllNow(); else observeReveal();
@@ -1113,6 +1118,43 @@
         </button>`).join('')}` : '';
   }
   const visibleOrder = (arr) => [...arr].sort((a, b) => gradeRank(a.grade) - gradeRank(b.grade));
+
+  // 메인 화면의 'RERUN' (복각) 안내: 시작 전엔 D-day, 기간 중엔 '복각 중', 종료일이 지나면 숨겨요
+  const shortDate = (d) => `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`;
+  function rerunEntries() {
+    const today = todayStart();
+    return state.content.rerunNotices.map((r) => {
+      const c = getChar(r.charId);
+      if (!c) return null;
+      const start = parseDate(r.start);
+      const end = parseDate(r.end);
+      if (end && end < today) return null;
+      const soon = !!(start && start > today);
+      let when;
+      if (soon) when = `${shortDate(start)} 복각 예정 · D-${dayDiff(start, today)}`;
+      else if (end) when = dayDiff(end, today) === 0 ? '복각 중 · 오늘 마감' : `복각 중 · ~${shortDate(end)}`;
+      else when = '복각 중';
+      return { ...r, c, soon, start, when, skinIndex: r.skin ? c.skins.findIndex((s) => s.name === r.skin) : -1 };
+    }).filter(Boolean)
+      // 진행 중인 복각 먼저, 예정은 가까운 날짜부터
+      .sort((a, b) => (a.soon - b.soon) || ((a.start || 0) - (b.start || 0)));
+  }
+  function renderHeroRerun() {
+    const box = $('#heroRerun');
+    if (!box) return;
+    const items = rerunEntries();
+    box.hidden = !items.length;
+    box.innerHTML = items.length ? `
+      <span class="hero__new-tag hero__rerun-tag">RERUN</span>
+      <span class="hero__new-label">복각</span>
+      ${items.map((r) => `
+        <button type="button" class="hero__new-btn hero__rerun-btn${r.soon ? ' is-soon' : ''}" data-open-char="${esc(r.c.id)}"${r.skinIndex >= 0 ? ` data-open-skin="${r.skinIndex}"` : ''} style="--c:${safeColor(r.c.color)}">
+          ${gradeBadge(r.c.grade, ' grade--sm')}
+          <b>${esc(r.c.name || '이름 없음')}</b>${r.skin ? `<small>${esc(r.skin)} 스킨</small>` : ''}
+          <span class="hero__rerun-when">${esc(r.when)}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>`).join('')}` : '';
+  }
 
   const cardEls = new Map();
   let gridReady = false;
@@ -1244,6 +1286,7 @@
     emit('gridrender', extraGrid);
     $('#charEmpty').hidden = shownList.length > 0 || state.editing;
     renderHeroNew();
+    renderHeroRerun();
 
     // FLIP: 새 위치에서 이전 위치로부터 미끄러지듯 이동
     if (animate) {
@@ -1678,7 +1721,12 @@
 
     document.addEventListener('click', (e) => {
       const openChar = e.target.closest('[data-open-char]');
-      if (openChar) { openCharacter(openChar.dataset.openChar); return; }
+      if (openChar) {
+        openCharacter(openChar.dataset.openChar);
+        // 메인 화면 복각 안내에서 누르면 그 스킨을 바로 보여줘요
+        if (openChar.dataset.openSkin) selectSkin(Number(openChar.dataset.openSkin));
+        return;
+      }
       // 업데이트 영상: 큰 화면 재생 · 목록에서 고르기 · 메인 화면 UPDATE 버튼
       if (e.target.closest('[data-play]')) { playFeature(); return; }
       const upd = e.target.closest('[data-upd]');
