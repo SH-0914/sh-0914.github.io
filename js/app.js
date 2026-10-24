@@ -51,6 +51,8 @@
   const SECTION_DEFAULTS = {
     about: { nav: '게임 소개', eyebrow: 'ABOUT', title: '더 스파이크 크로스란?' },
     characters: { nav: '캐릭터', eyebrow: 'CHARACTERS', title: '캐릭터 도감' },
+    // 도감의 '스킨' 카테고리를 고르면 캐릭터 섹션 제목 자리에 이 제목이 보여요 (메뉴 이름은 쓰지 않아요)
+    skins: { nav: '스킨', eyebrow: 'SKINS', title: '스킨 도감' },
     modes: { nav: '게임 모드', eyebrow: 'GAME MODES', title: '게임 모드' },
     currency: { nav: '재화', eyebrow: 'CURRENCY', title: '재화 획득 가이드' },
     links: { nav: '공식 채널', eyebrow: 'OFFICIAL', title: '공식 채널' },
@@ -457,6 +459,29 @@
     if (instant || reduceMotion) start(); else setTimeout(start, 170);
   }
 
+  /* ---------- 스킨 등급 (게임 순서: 베이직 → 레귤러 → 에이스 → 에픽 → 레전더리) ----------
+   * 스킨의 rarity 칸에 등급 이름을 적어요. 목록은 높은 등급부터 (도감 묶음 · 고르기 순서) */
+  const SKIN_GRADES = [
+    { id: '레전더리', color: '#ff3355', svg: '<path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#c4103a"/><path d="M16 2 12.5 12.5 16 16Z" fill="#ff7b8c"/><path d="M16 2 19.5 12.5 16 16Z" fill="#e5173f"/><path d="M30 16 19.5 12.5 16 16Z" fill="#ff3d5e"/><path d="M30 16 19.5 19.5 16 16Z" fill="#a50e38"/><path d="M16 30 19.5 19.5 16 16Z" fill="#7d1aa6"/><path d="M16 30 12.5 19.5 16 16Z" fill="#a93ad8"/><path d="M2 16 12.5 19.5 16 16Z" fill="#d61b4b"/><path d="M2 16 12.5 12.5 16 16Z" fill="#ff8d9d"/>' },
+    { id: '에픽', color: '#2fb4ff', svg: '<path d="M5 5Q16 11 27 5Q21 16 27 27Q16 21 5 27Q11 16 5 5Z" fill="#1b8fe8"/><path d="M5 5Q16 11 27 5L16 16Z" fill="#8cecff"/><path d="M27 5Q21 16 27 27L16 16Z" fill="#1f9fea"/><path d="M27 27Q16 21 5 27L16 16Z" fill="#1462c8"/><path d="M5 27Q11 16 5 5L16 16Z" fill="#3fd0f7"/>' },
+    { id: '에이스', color: '#ffc42e', svg: '<path d="M16 3 28.4 12 23.6 26.5H8.4L3.6 12Z" fill="#e0a417"/><path d="M16 3 28.4 12 22.7 13.9 16 9Z" fill="#ffe27a"/><path d="M28.4 12 23.6 26.5 20.1 21.8 22.7 13.9Z" fill="#c98a0e"/><path d="M23.6 26.5H8.4L11.9 21.8H20.1Z" fill="#b07507"/><path d="M8.4 26.5 3.6 12 9.3 13.9 11.9 21.8Z" fill="#eeb02a"/><path d="M3.6 12 16 3V9L9.3 13.9Z" fill="#ffeeb0"/><path d="M16 9 22.7 13.9 20.1 21.8H11.9L9.3 13.9Z" fill="#ffd23f"/>' },
+    { id: '레귤러', color: '#c9ccd3', svg: '<path d="M16 3 29 16 16 29 3 16Z" fill="#b7bac2"/><path d="M16 3 3 16H10L16 10Z" fill="#f4f5f8"/><path d="M16 3 29 16H22L16 10Z" fill="#a9adb6"/><path d="M3 16 16 29V22L10 16Z" fill="#8d929c"/><path d="M29 16 16 29V22L22 16Z" fill="#6f747e"/><path d="M16 10 22 16 16 22 10 16Z" fill="#d9dce2"/>' },
+    { id: '베이직', color: '#b08a62', svg: '<path d="M4 7Q16 2.6 28 7Q26 19.5 16 28.5Q6 19.5 4 7Z" fill="#7a5636"/><path d="M8.5 9Q16 6.6 23.5 9Q21.6 17 16 23Q10.4 17 8.5 9Z" fill="#b48c63"/><path d="M4 7Q16 2.6 28 7L23.5 9Q16 6.6 8.5 9Z" fill="#cfa77c"/>' }
+  ];
+  const SKIN_GRADE_ALIASES = { legendary: '레전더리', 레전드: '레전더리', 전설: '레전더리', epic: '에픽', ace: '에이스', regular: '레귤러', basic: '베이직' };
+  function skinGrade(s) {
+    const r = String((s && s.rarity) || '').replace(/\s+/g, '').toLowerCase();
+    const id = SKIN_GRADE_ALIASES[r] || r;
+    return SKIN_GRADES.find((g) => g.id === id) || null;
+  }
+  const gemSVG = (g) => `<svg class="gem" viewBox="0 0 32 32" aria-hidden="true" focusable="false">${g.svg}</svg>`;
+  // 스킨 등급 표시 — 다섯 등급이면 보석 아이콘, 그 밖의 예전 글자는 그대로
+  function skinGradeBadge(s) {
+    const g = skinGrade(s);
+    if (g) return `<span class="sgrade" style="--sg:${g.color}">${gemSVG(g)}${esc(g.id)}</span>`;
+    return s && s.rarity ? `<span class="rarity ${rarityClass(s.rarity)}">${esc(s.rarity)}</span>` : '';
+  }
+
   function rarityClass(r) {
     const s = String(r || '').toLowerCase();
     if (/전설|레전드|legend|ssr|ur\b/.test(s)) return 'rarity--legend';
@@ -670,14 +695,15 @@
   function renderSectionHeads() {
     const secs = state.content.sections;
     $$('[data-section-head]').forEach((el) => {
-      const key = el.dataset.sectionHead;
+      // 도감에서 스킨을 고르면 '캐릭터 도감' 대신 '스킨 도감' 제목
+      const key = el.dataset.sectionHead === 'characters' && skinDex.cat === 'skins' ? 'skins' : el.dataset.sectionHead;
       const s = secs[key] || {};
       if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', '');
       el.innerHTML = `
         <span class="shead__eyebrow"><i>${esc(el.dataset.num)}</i>${esc(s.eyebrow)}</span>
         <h2 class="shead__title">${esc(s.title)}</h2>
         ${s.desc ? `<p class="shead__desc">${multiline(s.desc)}</p>` : ''}
-        ${editButton(key, key === 'characters' ? '섹션 제목 · 조합 편집' : '이 섹션 편집')}`;
+        ${editButton(key, key === 'characters' ? '섹션 제목 · 조합 편집' : key === 'skins' ? '스킨 도감 제목 편집' : '이 섹션 편집')}`;
     });
     $$('.nav__links a[data-section]').forEach((a) => {
       const s = secs[a.dataset.section];
@@ -1203,6 +1229,90 @@
         </button>`).join('')}` : '';
   }
 
+  /* =====================================================================
+   *  도감 카테고리 (캐릭터 · 스킨) · 스킨 도감
+   *  스킨은 지금처럼 캐릭터마다 저장되고, 스킨 도감은 모든 캐릭터의 스킨을 등급별로 모아 보여줘요.
+   * ===================================================================== */
+  const DEX_KEY = 'tsc.dex.cat'; // 이 탭에서 마지막으로 본 도감
+  const skinDex = { cat: store.get(DEX_KEY, true) === 'skins' ? 'skins' : 'chars', query: '', grade: 'all' };
+  const allSkins = () => visibleOrder(state.data.characters).flatMap((c) => c.skins.map((s, i) => ({ c, s, i, g: skinGrade(s) })));
+
+  function selectDex(cat, focus) {
+    skinDex.cat = cat === 'skins' ? 'skins' : 'chars';
+    $('#dexChars').hidden = skinDex.cat !== 'chars';
+    $('#dexSkins').hidden = skinDex.cat !== 'skins';
+    $$('[data-dex]').forEach((b) => {
+      const on = b.dataset.dex === skinDex.cat;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    store.set(DEX_KEY, skinDex.cat, true);
+    renderSectionHeads(); // 제목: 캐릭터 도감 ↔ 스킨 도감
+    if (skinDex.cat === 'chars') movePill(false); // 숨겨져 있던 포지션 필터 위치 다시 맞추기
+    else renderSkinDex();
+  }
+
+  // 등급 안내 겸 필터 (누르면 그 등급만, 한 번 더 누르면 전체)
+  function renderSkinGrades(items) {
+    const box = $('#skinGrades');
+    if (!box) return;
+    const count = (id) => items.filter((x) => (x.g ? x.g.id : '') === id).length;
+    const none = count('');
+    box.innerHTML = [...SKIN_GRADES].reverse().map((g, i) => `
+      ${i ? '<span class="sgrades__arrow" aria-hidden="true">›</span>' : ''}
+      <button type="button" class="sgrades__item${skinDex.grade === g.id ? ' is-active' : ''}" data-skin-grade="${esc(g.id)}" aria-pressed="${skinDex.grade === g.id}" style="--sg:${g.color}">
+        ${gemSVG(g)}<b>${esc(g.id)}</b><small>${count(g.id)}개</small>
+      </button>`).join('')
+      + (none ? `<button type="button" class="sgrades__item sgrades__item--none${skinDex.grade === '' ? ' is-active' : ''}" data-skin-grade="" aria-pressed="${skinDex.grade === ''}"><span class="gem gem--none" aria-hidden="true">?</span><b>등급 미정</b><small>${none}개</small></button>` : '');
+  }
+
+  function renderSkinDex() {
+    const grid = $('#skinGrid');
+    if (!grid) return;
+    const every = allSkins();
+    $$('[data-dex-count]').forEach((el) => {
+      el.textContent = el.dataset.dexCount === 'skins' ? `스킨 ${every.length}개` : `선수 ${state.data.characters.length}명`;
+    });
+    if (skinDex.cat !== 'skins') return;
+    if (skinDex.grade === '' && !every.some((x) => !x.g)) skinDex.grade = 'all';
+    renderSkinGrades(every);
+    const q = skinDex.query.trim().toLowerCase();
+    const items = every.filter(({ c, s, g }) => (skinDex.grade === 'all' || (g ? g.id : '') === skinDex.grade)
+      && (!q || [s.name, c.name, c.alias, s.howToGet, g ? g.id : ''].join(' ').toLowerCase().includes(q)));
+    const groups = [...SKIN_GRADES, null].map((g) => ({ g, list: items.filter((x) => x.g === g) })).filter((x) => x.list.length);
+    grid.innerHTML = groups.map(({ g, list }) => `
+      <section class="cgroup sgroup" style="--sg:${g ? g.color : '#8b93ad'}">
+        <header class="cgroup__head">
+          <span class="sgroup__gem">${g ? gemSVG(g) : '<span class="gem gem--none" aria-hidden="true">?</span>'}</span>
+          <h3 class="cgroup__name">${g ? esc(g.id) : '등급 미정'}</h3>
+          <span class="cgroup__count">${list.length}개</span>
+        </header>
+        <div class="sgrid">${list.map(({ c, s, i, g: sg }) => `
+          <button type="button" class="scard" data-open-char="${esc(c.id)}" data-open-skin="${i}" style="--c:${safeColor(c.color)}" aria-label="${esc(`${c.name} ${s.name} 스킨`)}">
+            <span class="scard__art">
+              <img data-skin-img="${esc(c.id)}:${i}" alt="" loading="lazy" decoding="async">
+              ${sg ? `<span class="scard__gem" title="${esc(sg.id)}">${gemSVG(sg)}</span>` : ''}
+              ${s.isNew ? '<span class="scard__new">NEW</span>' : ''}
+            </span>
+            <span class="scard__body">
+              <b class="scard__name">${esc(s.name || '이름 없는 스킨')}</b>
+              <span class="scard__who">${gradeBadge(c.grade, ' grade--sm')}${esc(c.name || '이름 없음')}</span>
+              ${s.howToGet ? `<small class="scard__how">${esc(s.howToGet)}</small>` : ''}
+            </span>
+          </button>`).join('')}
+        </div>
+      </section>`).join('');
+    $('#skinEmpty').hidden = items.length > 0;
+    $$('img[data-skin-img]', grid).forEach((img) => {
+      const [id, i] = img.dataset.skinImg.split(':');
+      const c = getChar(id);
+      const s = c && c.skins[Number(i)];
+      if (s) setImg(img, s.image, placeholder(s.name || c.name, c.color, 1), 'thumb');
+    });
+  }
+
   const cardEls = new Map();
   let gridReady = false;
 
@@ -1333,6 +1443,7 @@
     emit('gridrender', extraGrid);
     $('#charEmpty').hidden = shownList.length > 0 || state.editing;
     renderHeroRows();
+    renderSkinDex();
 
     // FLIP: 새 위치에서 이전 위치로부터 미끄러지듯 이동
     if (animate) {
@@ -1561,7 +1672,7 @@
     wrap.innerHTML = items.map((s, i) => {
       const isOn = i - 1 === state.skinIndex;
       return `<button type="button" class="skin${isOn ? ' is-active' : ''}" role="option" aria-selected="${isOn}" data-skin="${i - 1}">
-        <span class="skin__thumb"><img alt="" loading="lazy" decoding="async">${s.isNew ? '<span class="skin__new">NEW</span>' : ''}</span>
+        <span class="skin__thumb"><img alt="" loading="lazy" decoding="async">${s.isNew ? '<span class="skin__new">NEW</span>' : ''}${!s.base && skinGrade(s) ? `<span class="skin__gem" title="${esc(skinGrade(s).id)}">${gemSVG(skinGrade(s))}</span>` : ''}</span>
         <span class="skin__label">${esc(s.base ? '기본' : s.name || `스킨 ${i}`)}</span>
       </button>`;
     }).join('');
@@ -1595,7 +1706,7 @@
 
     const info = $('#mSkinInfo');
     info.innerHTML = skin
-      ? `<div class="skin-info__row">${skin.isNew ? '<span class="new-badge">NEW</span>' : ''}<b>${esc(skin.name || '이름 없는 스킨')}</b>${skin.rarity ? `<span class="rarity ${rarityClass(skin.rarity)}">${esc(skin.rarity)}</span>` : ''}</div>
+      ? `<div class="skin-info__row">${skin.isNew ? '<span class="new-badge">NEW</span>' : ''}<b>${esc(skin.name || '이름 없는 스킨')}</b>${skinGradeBadge(skin)}</div>
          ${skin.howToGet ? `<p>획득 방법 · ${multiline(skin.howToGet)}</p>` : ''}`
       : `<div class="skin-info__row"><b>기본 모습</b></div>${c.skins.length ? '<p>아래에서 스킨을 골라 미리 볼 수 있어요.</p>' : ''}`;
     if (animateInfo && !reduceMotion) {
@@ -1754,6 +1865,21 @@
   function bindUI() {
     $('#charSearch').addEventListener('input', (e) => { state.query = e.target.value; renderCharacters(); });
 
+    // 도감: 캐릭터 · 스킨 고르기 (← → 로도 넘겨요) · 스킨 검색 · 스킨 등급 필터
+    $$('[data-dex]').forEach((b) => b.addEventListener('click', () => selectDex(b.dataset.dex)));
+    $('#dexTabs').addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      selectDex(skinDex.cat === 'skins' ? 'chars' : 'skins', true);
+    });
+    $('#skinSearch').addEventListener('input', (e) => { skinDex.query = e.target.value; renderSkinDex(); });
+    $('#skinGrades').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-skin-grade]');
+      if (!b) return;
+      skinDex.grade = skinDex.grade === b.dataset.skinGrade ? 'all' : b.dataset.skinGrade;
+      renderSkinDex();
+    });
+
     $('#posChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip');
       if (!b) return;
@@ -1855,7 +1981,7 @@
   const api = window.TSC = {
     state, $, $$, esc, multiline, clone, clamp, store, on, emit, BLANK, remoteEnabled,
     normalizeContent, normalize, snapshot, isDirty, applySnapshot, markPublished, persist, revertToPublished,
-    previewMap, setImg, getImageURL, hydrateImages, placeholder, safeColor, rarityClass,
+    previewMap, setImg, getImageURL, hydrateImages, placeholder, safeColor, rarityClass, SKIN_GRADES, skinGrade, gemSVG,
     statTotal, statSum, getChar, current, allPositions,
     STAT_ICONS, statIcon, POSITIONS, GRADES, CHAR_COLORS, THEMES, gradeBadge,
     renderChips, renderCharacters, refreshCard, updateHeroCounts, renderHeroRows, refreshAll, refreshEverything, renderContent,
@@ -1890,6 +2016,7 @@
       renderAbout();
       renderChips();
       renderCharacters();
+      selectDex(skinDex.cat);
       renderModes();
       renderCurrencies();
       renderUpdates();
@@ -1901,8 +2028,8 @@
       return res;
     });
     api.ready = ready;
-    // 캐릭터 이름 · 사진 · 등급을 고치면 출시 · 복각 기록에도 바로 반영
-    on('change', () => renderHistory());
+    // 캐릭터 이름 · 사진 · 등급 · 스킨을 고치면 출시 · 복각 기록과 스킨 도감에도 바로 반영
+    on('change', () => { renderHistory(); renderSkinDex(); });
 
     const deepId = location.hash.startsWith('#c-') ? decodeURIComponent(location.hash.slice(3)) : null;
     runIntro(!!deepId, ready.then(() => logoReady), () => ready.then(() => {

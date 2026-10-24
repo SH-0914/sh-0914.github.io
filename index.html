@@ -176,20 +176,46 @@
       </div>
     </section>
 
-    <!-- ============ 캐릭터 ============ -->
+    <!-- ============ 도감 (캐릭터 · 스킨) ============ -->
     <section class="section section--alt" id="characters">
       <div class="container">
-        <header class="shead" data-section-head="characters" data-num="02"></header>
-        <div class="ctool" data-reveal>
-          <label class="ctool__search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <span class="sr-only">캐릭터 검색</span>
-            <input id="charSearch" type="search" placeholder="이름 · 특성으로 검색" autocomplete="off">
-          </label>
-          <div class="chips" id="posChips" role="group" aria-label="포지션 필터"></div>
+        <div class="gcat dexcat" id="dexTabs" role="tablist" aria-label="도감 고르기" data-reveal>
+          <button type="button" class="gcat__btn" role="tab" id="dexTabChars" aria-controls="dexChars" data-dex="chars">
+            <span class="gcat__ico" aria-hidden="true">🏐</span><b>캐릭터</b><small data-dex-count="chars">선수</small>
+          </button>
+          <button type="button" class="gcat__btn" role="tab" id="dexTabSkins" aria-controls="dexSkins" data-dex="skins">
+            <span class="gcat__ico gcat__ico--gem" aria-hidden="true"><svg class="gem" viewBox="0 0 32 32"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#c4103a"/><path d="M16 2 12.5 12.5 16 16Z" fill="#ff7b8c"/><path d="M30 16 19.5 12.5 16 16Z" fill="#ff3d5e"/><path d="M16 30 19.5 19.5 16 16Z" fill="#7d1aa6"/><path d="M2 16 12.5 12.5 16 16Z" fill="#ff8d9d"/></svg></span><b>스킨</b><small data-dex-count="skins">스킨</small>
+          </button>
         </div>
-        <div class="cgroups" id="charGrid"></div>
-        <p class="cempty" id="charEmpty" hidden>조건에 맞는 캐릭터가 없어요.</p>
+        <header class="shead" data-section-head="characters" data-num="02"></header>
+
+        <!-- 캐릭터 도감 -->
+        <div id="dexChars" role="tabpanel" aria-labelledby="dexTabChars">
+          <div class="ctool" data-reveal>
+            <label class="ctool__search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="sr-only">캐릭터 검색</span>
+              <input id="charSearch" type="search" placeholder="이름 · 특성으로 검색" autocomplete="off">
+            </label>
+            <div class="chips" id="posChips" role="group" aria-label="포지션 필터"></div>
+          </div>
+          <div class="cgroups" id="charGrid"></div>
+          <p class="cempty" id="charEmpty" hidden>조건에 맞는 캐릭터가 없어요.</p>
+        </div>
+
+        <!-- 스킨 도감 (모든 캐릭터의 스킨을 등급별로) -->
+        <div id="dexSkins" role="tabpanel" aria-labelledby="dexTabSkins" hidden>
+          <div class="sgrades" id="skinGrades" role="group" aria-label="스킨 등급 (누르면 그 등급만 보여요)"></div>
+          <div class="ctool">
+            <label class="ctool__search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="sr-only">스킨 검색</span>
+              <input id="skinSearch" type="search" placeholder="스킨 · 캐릭터 이름으로 검색" autocomplete="off">
+            </label>
+          </div>
+          <div class="cgroups" id="skinGrid"></div>
+          <p class="cempty" id="skinEmpty" hidden>조건에 맞는 스킨이 없어요.</p>
+        </div>
       </div>
     </section>
 

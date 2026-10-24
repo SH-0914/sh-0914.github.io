@@ -679,6 +679,92 @@ svg { flex: none; }
 
 .cempty { padding: 60px 0; text-align: center; color: var(--ink-3); }
 
+/* ---------- 카테고리 고르기 (도감: 캐릭터 · 스킨 / 뽑기: 뽑기 · 스킨 시뮬레이터) ---------- */
+.gcat {
+  display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: clamp(28px, 4vw, 44px);
+  padding: 6px; border-radius: 20px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line-2);
+}
+.gcat__btn {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px;
+  min-width: 210px; padding: 10px 18px 10px 12px; border: 1px solid transparent; border-radius: 15px; background: none; text-align: left;
+  color: var(--ink-3); transition: background-color .3s, border-color .3s, color .3s, box-shadow .3s;
+}
+.gcat__ico { grid-row: 1 / 3; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; font-size: 19px; background: rgba(255, 255, 255, .06); filter: grayscale(.6); transition: filter .3s; }
+.gcat__ico .gem { width: 24px; height: 24px; }
+.gcat__btn b { font-size: 16px; font-weight: 800; line-height: 1.25; }
+.gcat__btn small { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.gcat__btn:hover { color: var(--ink-2); background: rgba(255, 255, 255, .04); }
+.gcat__btn.is-active { color: var(--ink); background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .04)); border-color: var(--line-2); box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .8); }
+.gcat__btn.is-active .gcat__ico { filter: none; background: linear-gradient(135deg, #ffd955, #ffb31f); }
+.gcat__btn.is-active .gcat__ico--gem { background: linear-gradient(135deg, rgba(255, 51, 85, .35), rgba(125, 26, 166, .35)); }
+@media (max-width: 560px) {
+  .gcat { display: grid; width: 100%; }
+  .gcat__btn { min-width: 0; padding: 8px 10px 8px 8px; column-gap: 8px; }
+  .gcat__ico { width: 32px; height: 32px; font-size: 16px; }
+  .gcat__btn b { font-size: 14px; }
+  .gcat__btn small { font-size: 11px; }
+}
+
+/* ---------- 스킨 등급 · 스킨 도감 ---------- */
+.gem { display: block; width: 22px; height: 22px; flex: none; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .45)); }
+.gem--none { display: grid; place-items: center; border-radius: 50%; font-size: 13px; font-weight: 800; color: var(--ink-3); background: rgba(255, 255, 255, .08); filter: none; }
+.sgrade { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 6px; border-radius: 999px; font-size: 12.5px; font-weight: 800; color: color-mix(in srgb, var(--sg) 45%, #fff); background: color-mix(in srgb, var(--sg) 16%, rgba(6, 10, 20, .6)); border: 1px solid color-mix(in srgb, var(--sg) 45%, transparent); }
+.sgrade .gem { width: 17px; height: 17px; }
+.skin__gem { position: absolute; right: 4px; bottom: 4px; }
+.skin__gem .gem { width: 18px; height: 18px; }
+
+/* 등급 안내 겸 필터 (게임의 '스킨 등급' 화면처럼) */
+.sgrades { display: flex; align-items: stretch; gap: 8px; margin-bottom: 18px; }
+.sgrades__item {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 8px 12px;
+  border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid var(--line); color: var(--ink);
+  transition: border-color .3s, background-color .3s, transform .35s var(--ease);
+}
+.sgrades__item .gem { width: 44px; height: 44px; }
+.sgrades__item .gem--none { width: 44px; height: 44px; font-size: 20px; }
+.sgrades__item b { font-size: 15px; font-weight: 800; }
+.sgrades__item small { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.sgrades__item:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--sg, #8b93ad) 50%, transparent); }
+.sgrades__item.is-active { border-color: var(--sg, #8b93ad); background: color-mix(in srgb, var(--sg, #8b93ad) 14%, transparent); }
+.sgrades__item.is-active b { color: color-mix(in srgb, var(--sg, #8b93ad) 40%, #fff); }
+.sgrades__arrow { align-self: center; color: var(--ink-3); font-size: 18px; }
+@media (max-width: 700px) {
+  .sgrades { gap: 4px; flex-wrap: wrap; }
+  .sgrades__arrow { display: none; }
+  .sgrades__item { flex: 0 0 calc(20% - 3.2px); padding: 10px 2px 8px; gap: 4px; }
+  .sgrades__item .gem, .sgrades__item .gem--none { width: 30px; height: 30px; }
+  .sgrades__item b { font-size: 12px; }
+  .sgrades__item small { font-size: 11px; }
+}
+
+.sgroup .cgroup__head { border-bottom-color: color-mix(in srgb, var(--sg) 35%, transparent); }
+.sgroup__gem .gem, .sgroup__gem .gem--none { width: 34px; height: 34px; }
+.sgroup .cgroup__name { color: color-mix(in srgb, var(--sg) 35%, #fff); }
+.sgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.scard {
+  position: relative; display: flex; flex-direction: column; padding: 0; text-align: left; color: var(--ink);
+  border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line);
+  transition: transform .5s var(--ease), border-color .4s, box-shadow .5s var(--ease);
+}
+.scard:hover, .scard:focus-visible {
+  transform: translateY(-5px); border-color: color-mix(in srgb, var(--sg) 55%, transparent);
+  box-shadow: 0 22px 44px -24px color-mix(in srgb, var(--sg) 70%, transparent);
+}
+.scard__art { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: radial-gradient(90% 70% at 50% 25%, color-mix(in srgb, var(--c) 38%, transparent), transparent 70%), linear-gradient(180deg, #111c3a, #0b1328); }
+.scard__art::after { content: ""; position: absolute; inset: auto 0 0; height: 35%; background: linear-gradient(to top, var(--panel), transparent); }
+.scard__art img { width: 100%; height: 100%; object-fit: var(--card-fit); object-position: 50% 15%; transition: transform .9s var(--ease); }
+.scard:hover .scard__art img { transform: scale(1.04); }
+.scard__gem { position: absolute; z-index: 2; right: 10px; top: 10px; }
+.scard__gem .gem { width: 30px; height: 30px; }
+.scard__new { position: absolute; z-index: 2; left: 10px; top: 10px; }
+.scard__new { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-family: var(--font-logo); font-size: 11px; letter-spacing: .1em; color: #1a0903; background: linear-gradient(120deg, #ffe066, #ff7a2e 45%, #ff4fa0); }
+.scard__body { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; padding: 0 14px 14px; margin-top: -18px; }
+.scard__name { font-family: var(--font-display); font-weight: 400; font-size: 18px; line-height: 1.25; }
+.scard__who { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.scard__who .grade--sm { min-width: 26px; height: 20px; font-size: 12px; padding: 0 4px; }
+.scard__how { font-size: 12px; color: var(--ink-3); }
+@media (max-width: 520px) { .sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .scard__name { font-size: 16px; } }
+
 /* =====================================================================
  *  캐릭터 상세 창
  * ===================================================================== */
@@ -1415,6 +1501,9 @@ body.is-editing .modal__panel { max-height: calc(100dvh - 120px); }
 .ed-item__row > .w-icon { flex: 0 0 56px; text-align: center; font-size: 18px; padding: 0 4px; }
 .ed-item__row > .w-icon::placeholder { font-size: 12px; }
 .ed-item__row > .w-tag { flex: 0 0 120px; }
+/* 스킨 등급 고르기 */
+.ed-item select.w-tag { height: 40px; padding: 0 8px; border-radius: 10px; outline: none; font-size: 13.5px; color: var(--ink); background: rgba(6, 10, 20, .55); border: 1px solid var(--line-2); }
+.ed-item select.w-tag option { background: var(--panel); }
 .ed-item__row > .w-label { flex: 0 0 116px; }
 .ed-item__ctrl { flex: none; display: flex; gap: 4px; }
 .ed-item__ctrl button { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--ink-2); font-size: 13px; line-height: 1; transition: background-color .2s, color .2s, border-color .2s; }

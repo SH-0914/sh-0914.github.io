@@ -24,7 +24,7 @@
  *     stats       스탯 범위 { 스탯key: { "min": 최소, "max": 최대 } }
  *     total       총합 스테이터스 (null 이면 최대값 합계로 자동 표시)
  *     traits      특성 [{ icon, name, tag, desc }]
- *     skins       스킨 [{ name, rarity, image, howToGet }]
+ *     skins       스킨 [{ name, rarity, image, howToGet }] — rarity 는 스킨 등급 (베이직 · 레귤러 · 에이스 · 에픽 · 레전더리)
  *
  *  이미지 권장: 세로 3:4 비율, 900×1200px 이상, PNG 또는 WebP
  * ===================================================================== */

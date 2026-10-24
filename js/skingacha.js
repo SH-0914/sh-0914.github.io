@@ -47,7 +47,7 @@
   gachaRoot.setAttribute('role', 'tabpanel');
   gachaRoot.setAttribute('aria-labelledby', 'gcatGacha');
   const root = document.getElementById('skinGachaRoot');
-  const catBtns = $$('.gcat__btn');
+  const catBtns = $$('[data-gcat]'); // 이 카테고리 버튼만 (도감의 캐릭터 · 스킨 버튼과 섞이지 않게)
 
   function selectCat(cat, focus) {
     const skin = cat === 'skin';

@@ -21,7 +21,6 @@
   const ADMIN_FLAG = 'tsc.admin';
   const EDITING_KEY = 'tsc.editing';
   const DRAFT_KEY = 'tsc.draft.v2';
-  const RARITIES = ['일반', '레어', '에픽', '전설', '한정'];
   const TRAIT_TAGS = ['패시브', '액티브', '궁극기', '고유'];
 
   // 올리는 이미지 크기 (긴 변 기준 px). 화면 표시 크기의 2~3배라 고해상도 화면에서도 선명해요.
@@ -107,7 +106,6 @@
       </div>
     </div>
 
-    <datalist id="edRarityList">${RARITIES.map((r) => `<option value="${r}">`).join('')}</datalist>
     <datalist id="edTagList">${TRAIT_TAGS.map((r) => `<option value="${r}">`).join('')}</datalist>
     <input type="file" id="edFile" hidden>
   `);
@@ -757,6 +755,13 @@ service cloud.firestore {
             { key: 'desc', label: '효과 설명 (선택 — 능력치 말고 다른 효과가 있을 때)', type: 'textarea', rows: 2, placeholder: '예: 오아시스 정오 발동 점수 9점으로 변경' }
           ] } }
         ] }
+      ]
+    },
+    skins: {
+      title: '스킨 도감',
+      note: "도감에서 '스킨'을 골랐을 때 보이는 제목이에요. 스킨 이름 · 사진 · 등급은 캐릭터 카드를 눌러 스킨 목록에서 고쳐요.",
+      groups: [
+        { title: '섹션 제목', path: 'sections.skins', fields: SECTION_FIELDS.filter((f) => f.key !== 'nav') }
       ]
     },
     modes: {
@@ -1415,6 +1420,16 @@ service cloud.firestore {
     </div>`;
   }
 
+  // 스킨 등급 고르기 (레전더리 → 베이직). 예전에 글자로 적은 등급이 있으면 그 값도 남겨 둬요
+  function skinGradeSelect(attrs, cur) {
+    const known = T.SKIN_GRADES.some((g) => g.id === cur);
+    return `<select ${attrs} class="w-tag" aria-label="스킨 등급">
+      <option value="">등급 미정</option>
+      ${T.SKIN_GRADES.map((g) => `<option value="${esc(g.id)}">${esc(g.id)}</option>`).join('')}
+      ${cur && !known ? `<option value="${esc(cur)}">${esc(cur)} (예전 등급)</option>` : ''}
+    </select>`;
+  }
+
   function itemHTML(kind, i, n) {
     const a = (k) => `data-kind="${kind}" data-i="${i}" data-k="${k}"`;
     if (kind === 'profile') {
@@ -1440,7 +1455,7 @@ service cloud.firestore {
       <div class="fields">
         <div class="ed-item__row">
           <input ${a('name')} placeholder="스킨 이름">
-          <input ${a('rarity')} class="w-tag" list="edRarityList" placeholder="등급">
+          ${skinGradeSelect(a('rarity'), ((T.current() || { skins: [] }).skins[i] || {}).rarity)}
           ${ctrlHTML(kind, i, n)}
         </div>
         <div class="f__row">
@@ -1567,7 +1582,7 @@ service cloud.firestore {
       item[t.dataset.k] = t.type === 'checkbox' ? t.checked : t.value;
       if (kind === 'skins') {
         const k = t.dataset.k;
-        if (k === 'image' || k === 'name' || k === 'isNew') refreshVisual(state.skinIndex === i);
+        if (k === 'image' || k === 'name' || k === 'isNew' || k === 'rarity') refreshVisual(state.skinIndex === i);
         if (state.skinIndex === i && (k === 'rarity' || k === 'howToGet' || k === 'name' || k === 'isNew')) T.refreshStage(true);
         // 스킨 이름 · 신규 표시는 메인 화면 안내(신규 스킨 · 복각)에도 보여요
         if (k === 'name' || k === 'isNew') T.renderHeroRows();

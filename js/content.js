@@ -56,6 +56,7 @@ window.SITE_CONTENT = {
   sections: {
     about:      { eyebrow: "ABOUT",      title: "더 스파이크 크로스란?", desc: "처음 시작하는 플레이어를 위한 게임 소개" },
     characters: { eyebrow: "CHARACTERS", title: "캐릭터 도감",          desc: "캐릭터를 눌러 스탯 · 특성 · 스킨을 확인하세요." },
+    skins:      { eyebrow: "SKINS",      title: "스킨 도감",            desc: "스킨을 누르면 그 스킨을 입은 캐릭터를 볼 수 있어요. 위의 등급을 누르면 그 등급만 보여요." },
     modes:      { eyebrow: "GAME MODES", title: "게임 모드",            desc: "모드별 규칙과 보상을 한눈에." },
     currency:   { eyebrow: "CURRENCY",   title: "재화 획득 가이드",     desc: "재화를 어디서 얻고 어디에 쓰는지 정리했어요." },
     links:      { eyebrow: "OFFICIAL",   title: "공식 채널",            desc: "더 스파이크 크로스의 최신 소식은 공식 채널에서 확인하세요." },
