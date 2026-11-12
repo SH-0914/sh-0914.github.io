@@ -66,8 +66,14 @@
     { id: 'default', name: '원래 테마', desc: '남색 코트 · 주황 · 하늘색 — 사이트 기본 디자인',
       preview: 'radial-gradient(circle at 76% 34%, #ff8a4c 0 13%, transparent 14%), radial-gradient(60% 70% at 20% 90%, rgba(50, 212, 255, .45), transparent 70%), linear-gradient(135deg, #142042, #060a14)' },
     { id: 'halloween', name: '할로윈', desc: '보라색 밤하늘 · 달 · 박쥐 · 거미 · 유령 · 마녀 모자 · 묘비 언덕',
-      preview: 'radial-gradient(circle at 74% 30%, #ffe3a3 0 12%, transparent 13%), radial-gradient(circle at 26% 76%, #ff7a1a 0 10%, transparent 11%), radial-gradient(60% 70% at 30% 90%, rgba(162, 89, 255, .45), transparent 70%), linear-gradient(135deg, #2b1748, #0a0612)' }
+      preview: 'radial-gradient(circle at 74% 30%, #ffe3a3 0 12%, transparent 13%), radial-gradient(circle at 26% 76%, #ff7a1a 0 10%, transparent 11%), radial-gradient(60% 70% at 30% 90%, rgba(162, 89, 255, .45), transparent 70%), linear-gradient(135deg, #2b1748, #0a0612)' },
+    { id: 'coach', name: '신인감독 김연경 2 콜라보', desc: '밤 경기장 남색 · 팀 주황 · 노랑 버튼 · 조명 · 응원 현수막 · 네트 · 호루라기 · 관중석',
+      preview: 'radial-gradient(circle at 72% 32%, #ffc93d 0 11%, transparent 12%), linear-gradient(160deg, transparent 0 58%, #ff7417 58% 66%, transparent 66%), radial-gradient(60% 70% at 25% 0%, rgba(255, 236, 190, .35), transparent 70%), linear-gradient(135deg, #12244f, #050b1a)' }
   ];
+  // 미리보기: 주소 뒤에 ?theme=아이디 (예: ?theme=coach) 를 붙이면 내 화면에서만 그 테마로 보여요. 게시된 테마는 바뀌지 않아요.
+  const PREVIEW_THEME = (() => {
+    try { const id = new URLSearchParams(location.search).get('theme'); return THEMES.some((t) => t.id === id) ? id : ''; } catch (e) { return ''; }
+  })();
 
   // 게시된 내용에 공식 채널이 아직 없으면 content.js 의 기본 링크를 보여줍니다.
   const DEFAULT_LINKS = list(obj(window.SITE_CONTENT).links);
@@ -1020,13 +1026,28 @@
     const hero = $('#heroUpdate');
     const featured = ups.filter((u) => u.featured);
     hero.hidden = !featured.length;
+    // 영상마다 썸네일이 있는 작은 카드로 보여줘요. 제목 맨 앞의 [Collab] 같은 말머리는 작은 꼬리표로 떼어내요.
     hero.innerHTML = featured.length ? `
-      <span class="hero__new-tag hero__update-tag">UPDATE</span>
-      ${featured.map((u) => `
-        <button type="button" class="hero__new-btn hero__update-btn" data-play-update="${u.i}">
-          <span class="hero__update-play">${PLAY_ICON}</span>
-          <b>${esc(u.title || '새 업데이트')}</b>${u.date ? `<small>${esc(u.date)}</small>` : ''}
-        </button>`).join('')}` : '';
+      <div class="hero__update-head">
+        <span class="hero__new-tag hero__update-tag">UPDATE</span>
+        <span class="hero__update-label">새 영상 ${featured.length}개 · 눌러서 바로 보기</span>
+      </div>
+      <div class="hero__update-list">${featured.map((u) => {
+        const m = /^\s*\[([^\]]{1,16})\]\s*(.*)$/.exec(u.title || '');
+        const chip = m ? m[1] : '';
+        const title = (m ? m[2] : u.title) || '새 업데이트';
+        return `
+        <button type="button" class="hero__update-card" data-play-update="${u.i}">
+          <span class="hero__update-thumb">${updThumb(u)}<span class="hero__update-play">${PLAY_ICON}</span></span>
+          <span class="hero__update-text">
+            <span class="hero__update-meta">${chip ? `<em>${esc(chip)}</em>` : ''}${u.date ? `<small>${esc(u.date)}</small>` : ''}</span>
+            <b>${esc(title)}</b>
+          </span>
+        </button>`;
+      }).join('')}
+      </div>` : '';
+    hydrateImages(hero);
+    fixYtThumbs(hero);
   }
 
   function playFeature() {
@@ -1090,7 +1111,8 @@
     document.body.classList.toggle('pixel-art', s.pixelArt);
     document.documentElement.style.setProperty('--card-fit', s.cardImageFit);
     // 테마: html 에 theme-아이디 를 붙여요 (원래 테마는 아무것도 붙이지 않아요)
-    THEMES.forEach((t) => document.documentElement.classList.toggle('theme-' + t.id, t.id !== 'default' && s.theme === t.id));
+    const theme = PREVIEW_THEME || s.theme;
+    THEMES.forEach((t) => document.documentElement.classList.toggle('theme-' + t.id, t.id !== 'default' && theme === t.id));
   }
 
   // 관리자가 글을 고칠 때마다 다시 그리는 부분 (캐릭터 목록 제외)

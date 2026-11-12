@@ -1,0 +1,190 @@
+/* =====================================================================
+ *  테마 — 신인감독 김연경 2 콜라보
+ *  html 에 theme-coach 가 붙었을 때만 적용돼요. (관리자 모드 → 도구 막대의 테마)
+ *  미리보기: 주소 뒤에 ?theme=coach 를 붙이면 내 화면에서만 이 테마로 보여요. (게시 X)
+ *  장식 그림은 모두 이 파일 안의 SVG 라서 이미지 파일이 따로 필요 없어요.
+ *  분위기: 밤 경기장 남색 · 팀 주황 · '도전하기' 버튼 같은 노랑-주황 · 조명 · 응원 현수막 · 관중석
+ * ===================================================================== */
+
+/* 장식 요소는 평소에는 숨김 */
+.kc { display: none; }
+html.theme-coach .kc { display: block; }
+
+/* ---------- 색상: 경기장 남색 · 팀 주황 · 금빛 노랑 ---------- */
+html.theme-coach {
+  --bg: #050b1a;
+  --bg-2: #091430;
+  --panel: #0c1a3c;
+  --panel-2: #12244f;
+  --line: rgba(140, 170, 255, .11);
+  --line-2: rgba(140, 170, 255, .22);
+  --ink-2: #b6c2de;
+  --ink-3: #7787aa;
+  --accent: #ff7417;
+  --accent-2: #ffb23f;
+  --accent-soft: rgba(255, 116, 23, .16);
+  --cyan: #ffc93d;
+  --cyan-soft: rgba(255, 201, 61, .14);
+}
+
+html.theme-coach .orb--a { background: radial-gradient(closest-side, rgba(255, 116, 23, .18), transparent); }
+html.theme-coach .orb--b { background: radial-gradient(closest-side, rgba(47, 107, 255, .16), transparent); }
+html.theme-coach .orb--c { background: radial-gradient(closest-side, rgba(255, 201, 61, .07), transparent); }
+html.theme-coach .progress { background: linear-gradient(90deg, #ffc93d, #ff7417 50%, #2f6bff); }
+html.theme-coach .section--alt { background: linear-gradient(180deg, transparent, rgba(14, 30, 70, .55) 14%, rgba(14, 30, 70, .55) 86%, transparent); }
+html.theme-coach .shead__eyebrow::after { background: linear-gradient(90deg, var(--accent), #ffc93d 60%, transparent); }
+html.theme-coach .nav.is-scrolled { background: rgba(5, 11, 26, .76); }
+@media (max-width: 860px) {
+  html.theme-coach .nav__links { background: rgba(8, 16, 38, .96); }
+  html.theme-coach .nav.is-menu { background: rgba(5, 11, 26, .92); }
+}
+
+/* 노랑-주황 버튼 (게임의 '도전하기' 버튼 느낌) */
+html.theme-coach .btn--primary {
+  background: linear-gradient(180deg, #ffd651, #ffb52e 48%, #ff8a1a);
+  color: #1b1003;
+  box-shadow: 0 12px 30px -12px rgba(255, 160, 30, .85), inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -2px 0 rgba(160, 70, 0, .35);
+}
+html.theme-coach .btn--primary:hover { box-shadow: 0 18px 38px -14px rgba(255, 160, 30, .95), inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -2px 0 rgba(160, 70, 0, .35); }
+html.theme-coach .logo__main { background-image: linear-gradient(100deg, #fff 0 40%, #ffd36b 50%, #fff 60% 100%); }
+html.theme-coach .logo__sub { background-image: linear-gradient(90deg, #ff7417, #ffc93d 50%, #fff3cf); }
+html.theme-coach .hero__eyebrow .dot { background: #ffc93d; }
+
+/* ---------- 감독 호루라기 (로고의 공 · 메인 화면의 큰 공) ---------- */
+html.theme-coach .logo__ball::before,
+html.theme-coach .hero__ball .ball-float::before {
+  content: ""; position: absolute; z-index: 1; pointer-events: none;
+  aspect-ratio: 100 / 70; transform-origin: 20% 40%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cpath d='M9 32C2 48 12 64 30 67' stroke='%23ff7417' stroke-width='4.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='26' r='7' fill='none' stroke='%23dfe5f2' stroke-width='3'/%3E%3Crect x='17' y='17' width='46' height='17' rx='4' fill='%23ffc93d' stroke='%23a8730a' stroke-width='2'/%3E%3Ccircle cx='68' cy='38' r='22' fill='%23ffc93d' stroke='%23a8730a' stroke-width='2.5'/%3E%3Crect x='40' y='13' width='15' height='8' rx='2' fill='%237a5306'/%3E%3Cpath d='M54 27A16 16 0 0 1 77 20' stroke='%23fff' stroke-opacity='.65' stroke-width='3.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html.theme-coach .logo__ball::before {
+  left: -22%; top: -38%; width: 80%; transform: rotate(-20deg);
+  filter: drop-shadow(0 0 3px rgba(255, 201, 61, .6));
+}
+html.theme-coach .hero__ball .ball-float { position: relative; }
+html.theme-coach .hero__ball .ball-float::before {
+  left: -8%; top: -6%; width: 48%; transform: rotate(-18deg);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45));
+  animation: kc-whistle 3.2s var(--ease-io) infinite alternate;
+}
+@keyframes kc-whistle { from { transform: rotate(-24deg); } to { transform: rotate(-10deg); } }
+html.theme-coach .hero__ball svg { filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)) drop-shadow(0 0 54px rgba(255, 160, 30, .4)); }
+
+/* ---------- 메인 화면: 경기장 조명 · 현수막 · 네트 · 꽃가루 ---------- */
+html.theme-coach .hero__court { stroke: rgba(255, 190, 120, .2); }
+html.theme-coach .hero__court .mid { stroke: rgba(255, 201, 61, .7); }
+html.theme-coach .hero__slash--a { background: linear-gradient(90deg, transparent, rgba(255, 116, 23, .75), transparent); }
+html.theme-coach .hero__slash--b { background: linear-gradient(90deg, transparent, rgba(255, 201, 61, .55), transparent); }
+
+/* 천장 조명: 위쪽에 줄지어 있는 불빛 */
+.kc-lamps {
+  position: absolute; left: 0; right: 0; top: 0; height: 120px; opacity: .85;
+  background:
+    radial-gradient(circle at 50% 60%, rgba(255, 246, 220, .95) 0 3px, rgba(255, 220, 150, .35) 4px, transparent 16px) 0 0 / 120px 120px repeat-x;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  animation: kc-flicker 5s ease-in-out infinite alternate;
+}
+@keyframes kc-flicker { 0%, 100% { opacity: .85; } 48% { opacity: .65; } 52% { opacity: .95; } }
+
+/* 위에서 내려오는 스포트라이트 (좌우로 천천히 흔들려요) */
+.kc-beam {
+  position: absolute; top: -6%; width: clamp(180px, 26vw, 380px); height: 108%;
+  transform-origin: 50% 0;
+  background: linear-gradient(180deg, rgba(255, 236, 190, .2), rgba(255, 200, 120, .06) 55%, transparent 85%);
+  clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+  filter: blur(3px); mix-blend-mode: screen;
+}
+.kc-beam--1 { left: 8%; animation: kc-sway 9s var(--ease-io) infinite alternate; }
+.kc-beam--2 { left: 38%; animation: kc-sway 11s var(--ease-io) -5s infinite alternate-reverse; opacity: .8; }
+.kc-beam--3 { right: 4%; animation: kc-sway 10s var(--ease-io) -2s infinite alternate; }
+@keyframes kc-sway { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+
+/* 응원 현수막 (주황 공 · 흰 별) */
+.kc-banners {
+  position: absolute; left: 0; right: 0; top: calc(var(--nav-h) - 4px); height: 120px; opacity: .45;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 150'%3E%3Crect x='0' y='0' width='240' height='3' fill='%239fb0d8' fill-opacity='.45'/%3E%3Cpath d='M30 0H90V122L60 106L30 122Z' fill='%23ff7417'/%3E%3Crect x='30' y='0' width='60' height='12' fill='%23c94f08'/%3E%3Ccircle cx='60' cy='54' r='17' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M45 46Q60 54 57 71M76 48Q60 51 52 38M49 66Q62 59 74 63' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M150 0H210V122L180 106L150 122Z' fill='%23e9eefb'/%3E%3Crect x='150' y='0' width='60' height='12' fill='%231d3474'/%3E%3Cpath d='M150 78L210 58V71L150 91Z' fill='%23ff7417'/%3E%3Cpath d='M180 26l4.7 9.5 10.5 1.5-7.6 7.4 1.8 10.4-9.4-4.9-9.4 4.9 1.8-10.4-7.6-7.4 10.5-1.5Z' fill='%231d3474'/%3E%3C/svg%3E") 0 0 / 192px 120px repeat-x;
+  -webkit-mask-image: linear-gradient(90deg, #000, transparent 38%, transparent 62%, #000);
+  mask-image: linear-gradient(90deg, #000, transparent 38%, transparent 62%, #000);
+  transform-origin: 50% 0; animation: kc-wave 6s var(--ease-io) infinite alternate;
+}
+@keyframes kc-wave { from { transform: skewX(-1.5deg); } to { transform: skewX(1.5deg); } }
+
+/* 배구 네트 (아래쪽에 비스듬히) */
+.kc-net {
+  position: absolute; left: -5%; right: -5%; bottom: 13%; height: 78px; opacity: .3;
+  border-top: 7px solid rgba(240, 245, 255, .85);
+  border-bottom: 3px solid rgba(240, 245, 255, .5);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M0 0H24V24' fill='none' stroke='%23dfe7ff' stroke-opacity='.55' stroke-width='1.2'/%3E%3C/svg%3E") 0 0 / 15px 15px;
+  transform: perspective(900px) rotateX(18deg) rotate(-3deg);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+}
+
+/* 바닥에 비친 주황 조명 */
+.kc-floor {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 36%;
+  background:
+    radial-gradient(50% 70% at 70% 100%, rgba(255, 140, 40, .16), transparent 70%),
+    radial-gradient(40% 60% at 20% 100%, rgba(47, 107, 255, .14), transparent 70%);
+}
+
+/* 반짝이 꽃가루 */
+.kc-confetti {
+  position: absolute; inset: 0 0 30% 0; opacity: .7;
+  background-image:
+    linear-gradient(#ffc93d, #ffc93d), linear-gradient(#ff7417, #ff7417),
+    linear-gradient(#ffffff, #ffffff), linear-gradient(#ffb23f, #ffb23f),
+    linear-gradient(#5d8bff, #5d8bff);
+  background-size: 6px 3px, 4px 7px, 3px 3px, 7px 3px, 4px 4px;
+  background-position: 40px 20px, 180px 90px, 260px 40px, 110px 160px, 320px 130px;
+  background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent);
+  mask-image: linear-gradient(#000 40%, transparent);
+}
+.kc-confetti--1 { left: 6%; width: 380px; animation: kc-fall 12s linear infinite; }
+.kc-confetti--2 { left: 48%; width: 380px; animation: kc-fall 15s linear -6s infinite; transform: scaleX(-1); }
+@keyframes kc-fall {
+  from { background-position: 40px -60px, 180px -10px, 260px -80px, 110px 40px, 320px 10px; }
+  to { background-position: 60px 340px, 160px 390px, 280px 320px, 90px 440px, 340px 410px; }
+}
+
+/* 메인 화면 윗줄 · 환영 화면 문구 */
+html.theme-coach .hero__eyebrow::after {
+  content: "신인감독 김연경 2 COLLAB"; padding-left: 10px; margin-left: 2px; border-left: 1px solid var(--line-2);
+  color: #ffc93d; letter-spacing: .08em;
+}
+html.theme-coach .intro {
+  background: radial-gradient(90% 70% at 50% 45%, rgba(16, 36, 86, .96), rgba(5, 11, 26, 1) 70%), var(--bg);
+}
+html.theme-coach .intro__slash--a { background: linear-gradient(90deg, transparent, rgba(255, 116, 23, .45) 35%, rgba(255, 116, 23, .7) 50%, rgba(255, 116, 23, .45) 65%, transparent); }
+html.theme-coach .intro__slash--b { background: linear-gradient(90deg, transparent, rgba(255, 201, 61, .4) 35%, rgba(255, 201, 61, .6) 50%, rgba(255, 201, 61, .4) 65%, transparent); }
+html.theme-coach .intro__inner::before {
+  content: "신인감독 김연경 2 × THE SPIKE CROSS"; font-family: var(--font-display); font-size: clamp(14px, 1.9vw, 21px); letter-spacing: .14em;
+  margin-bottom: clamp(30px, 6vw, 70px); /* 공 위의 호루라기와 겹치지 않게 */
+  background: linear-gradient(90deg, #ff7417, #ffc93d 50%, #fff3cf); -webkit-background-clip: text; background-clip: text; color: transparent;
+  opacity: 0; transform: translateY(16px);
+}
+html.theme-coach .intro.is-playing .intro__inner::before { animation: fade-up .9s var(--ease) 1.2s forwards; }
+
+/* ---------- 맨 아래: 응원봉을 든 관중석 ---------- */
+html.theme-coach .footer { position: relative; }
+html.theme-coach .footer::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 90px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 90'%3E%3Cpath d='M0 34H480V90H0Z' fill='%230b1633'/%3E%3Cpath d='M0 34H480' stroke='%231f3470' stroke-width='2'/%3E%3Cellipse cx='3' cy='57' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='3' cy='47' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='32' cy='58' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='32' cy='48' r='6.5' fill='%2316285a'/%3E%3Crect x='38.5' y='32' width='3' height='14' rx='1.5' fill='%23ffb23f' transform='rotate(-24 38.5 46)'/%3E%3Cellipse cx='69' cy='55' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='69' cy='45' r='6.5' fill='%2316285a'/%3E%3Crect x='75.5' y='29' width='3' height='14' rx='1.5' fill='%23ffc93d' transform='rotate(24 75.5 43)'/%3E%3Cellipse cx='92' cy='55' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='92' cy='45' r='6.5' fill='%2316285a'/%3E%3Crect x='98.5' y='29' width='3' height='14' rx='1.5' fill='%23ffc93d' transform='rotate(-24 98.5 43)'/%3E%3Cellipse cx='122' cy='55' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='122' cy='45' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='151' cy='58' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='151' cy='48' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='181' cy='55' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='181' cy='45' r='6.5' fill='%2316285a'/%3E%3Crect x='187.5' y='29' width='3' height='14' rx='1.5' fill='%23ff7417' transform='rotate(12 187.5 43)'/%3E%3Cellipse cx='217' cy='55' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='217' cy='45' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='245' cy='58' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='245' cy='48' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='273' cy='54' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='273' cy='44' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='304' cy='56' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='304' cy='46' r='6.5' fill='%2316285a'/%3E%3Crect x='310.5' y='30' width='3' height='14' rx='1.5' fill='%23ffb23f' transform='rotate(-24 310.5 44)'/%3E%3Cellipse cx='331' cy='58' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='331' cy='48' r='6.5' fill='%2316285a'/%3E%3Crect x='337.5' y='32' width='3' height='14' rx='1.5' fill='%23ffb23f' transform='rotate(24 337.5 46)'/%3E%3Cellipse cx='366' cy='57' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='366' cy='47' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='398' cy='56' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='398' cy='46' r='6.5' fill='%2316285a'/%3E%3Crect x='404.5' y='30' width='3' height='14' rx='1.5' fill='%23ff7417' transform='rotate(-12 404.5 44)'/%3E%3Cellipse cx='422' cy='58' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='422' cy='48' r='6.5' fill='%2316285a'/%3E%3Crect x='428.5' y='32' width='3' height='14' rx='1.5' fill='%23ffc93d' transform='rotate(12 428.5 46)'/%3E%3Cellipse cx='458' cy='56' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='458' cy='46' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='482' cy='54' rx='10' ry='7' fill='%2316285a'/%3E%3Ccircle cx='482' cy='44' r='6.5' fill='%2316285a'/%3E%3Cellipse cx='6' cy='73' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='6' cy='61' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='41' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='41' cy='60' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='70' cy='76' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='70' cy='64' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='108' cy='74' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='108' cy='62' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='144' cy='76' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='144' cy='64' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='172' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='172' cy='60' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='212' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='212' cy='60' r='7.5' fill='%23101e46'/%3E%3Crect x='219.5' y='44' width='3' height='14' rx='1.5' fill='%23ffb23f' transform='rotate(12 219.5 58)'/%3E%3Cellipse cx='246' cy='74' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='246' cy='62' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='278' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='278' cy='60' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='312' cy='73' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='312' cy='61' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='348' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='348' cy='60' r='7.5' fill='%23101e46'/%3E%3Crect x='355.5' y='44' width='3' height='14' rx='1.5' fill='%23ffc93d' transform='rotate(-12 355.5 58)'/%3E%3Cellipse cx='378' cy='75' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='378' cy='63' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='416' cy='72' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='416' cy='60' r='7.5' fill='%23101e46'/%3E%3Crect x='423.5' y='44' width='3' height='14' rx='1.5' fill='%23ffc93d' transform='rotate(12 423.5 58)'/%3E%3Cellipse cx='445' cy='75' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='445' cy='63' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='481' cy='75' rx='11' ry='8' fill='%23101e46'/%3E%3Ccircle cx='481' cy='63' r='7.5' fill='%23101e46'/%3E%3Cellipse cx='11' cy='93' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='11' cy='79' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='50' cy='93' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='50' cy='79' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='88' cy='95' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='88' cy='81' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='130' cy='94' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='130' cy='80' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='170' cy='95' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='170' cy='81' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='213' cy='93' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='213' cy='79' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='256' cy='96' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='256' cy='82' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='288' cy='95' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='288' cy='81' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='336' cy='95' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='336' cy='81' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='374' cy='92' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='374' cy='78' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='414' cy='92' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='414' cy='78' r='8.5' fill='%230a1531'/%3E%3Cellipse cx='451' cy='95' rx='13' ry='9' fill='%230a1531'/%3E%3Ccircle cx='451' cy='81' r='8.5' fill='%230a1531'/%3E%3C/svg%3E") left bottom / 480px 90px repeat-x;
+}
+
+/* ---------- 작은 화면 ---------- */
+@media (max-width: 860px) {
+  .kc-beam--2, .kc-confetti--2 { display: none !important; }
+  .kc-banners { height: 84px; background-size: 134px 84px; opacity: .4; }
+  .kc-net { bottom: 9%; height: 54px; }
+}
+@media (max-width: 520px) {
+  html.theme-coach .hero__eyebrow::after { content: "김연경 2 콜라보"; } /* 휴대폰에서 한 줄에 들어가게 짧게 */
+}
+
+/* 움직임 줄이기 설정을 켠 사람에게는 장식이 멈춰 있어요 */
+@media (prefers-reduced-motion: reduce) {
+  .kc, html.theme-coach .hero__ball .ball-float::before { animation: none !important; }
+}

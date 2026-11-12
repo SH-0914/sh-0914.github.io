@@ -1236,11 +1236,50 @@ svg { flex: none; }
 @media (max-width: 900px) { .upd-feature { grid-template-columns: 1fr; } }
 
 /* 메인 화면 'UPDATE' 안내 */
-.hero__update { background: linear-gradient(120deg, rgba(255, 0, 51, .14), rgba(255, 91, 34, .08)); border-color: rgba(255, 59, 92, .4); }
+/*   위: UPDATE 표시 + 안내 문구 / 아래: 썸네일이 있는 영상 카드 (넓은 화면은 나란히, 좁은 화면은 위아래로) */
+.hero__update {
+  display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+  width: min(100%, 760px); padding: 14px;
+  background: linear-gradient(120deg, rgba(255, 0, 51, .12), rgba(255, 91, 34, .06)); border-color: rgba(255, 59, 92, .35);
+}
+.hero__update-head { display: flex; align-items: center; gap: 10px; }
 .hero__update-tag { color: #fff; background: linear-gradient(120deg, #ff3b5c, #ff0033); background-size: 100% 100%; animation: upd-pulse 2s ease-out infinite; }
-.hero__update-btn { --c: #ff3b5c; }
-.hero__update-play { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #ff0033; }
+.hero__update-label { font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.hero__update-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.hero__update-card {
+  flex: 1 1 300px; display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px; border-radius: 14px; text-align: left; color: var(--ink);
+  background: rgba(6, 10, 20, .5); border: 1px solid rgba(255, 59, 92, .22);
+  transition: transform .4s var(--ease), background-color .3s, border-color .3s;
+}
+.hero__update-card:hover { transform: translateY(-2px); background: rgba(255, 59, 92, .1); border-color: rgba(255, 59, 92, .5); }
+.hero__update-thumb {
+  position: relative; flex: none; width: 112px; aspect-ratio: 16 / 9; border-radius: 9px; overflow: hidden; background: #0b1328;
+}
+.hero__update-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero__update-thumb .upd-noimg svg { width: 38%; }
+.hero__update-play {
+  position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255, 0, 51, .92); box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  transition: transform .35s var(--ease);
+}
 .hero__update-play svg { width: 13px; height: 13px; margin-left: 2px; fill: #fff; }
+.hero__update-card:hover .hero__update-play { transform: scale(1.12); }
+.hero__update-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hero__update-meta { display: flex; align-items: center; gap: 6px; }
+.hero__update-meta em {
+  font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 2px 7px; border-radius: 999px;
+  color: #1b1003; background: linear-gradient(120deg, #ffd651, #ff9a2e);
+}
+.hero__update-meta small { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.hero__update-text b {
+  font-size: 14px; font-weight: 700; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; /* 길면 두 줄까지만 */
+}
+@media (max-width: 520px) {
+  .hero__update { padding: 12px; }
+  .hero__update-card { flex-basis: 100%; }
+  .hero__update-thumb { width: 96px; }
+}
 
 /* 메인 화면 'RERUN' (복각) 안내 */
 .hero__rerun { background: linear-gradient(120deg, rgba(50, 212, 255, .12), rgba(176, 107, 255, .1)); border-color: rgba(90, 170, 255, .38); }
