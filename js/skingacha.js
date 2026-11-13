@@ -38,6 +38,9 @@
         <button type="button" class="gcat__btn" role="tab" id="gcatGacha" aria-controls="gachaRoot" data-gcat="gacha">
           <span class="gcat__ico" aria-hidden="true">⚾</span><b>뽑기 시뮬레이터</b><small>이벤트 선수 모집</small>
         </button>
+        <button type="button" class="gcat__btn gcat__btn--collab" role="tab" id="gcatCollab" aria-controls="gachaRoot" data-gcat="collab">
+          <span class="gcat__ico" aria-hidden="true">🤝</span><b>콜라보 모집</b><small>콜라보 선수 모집</small>
+        </button>
         <button type="button" class="gcat__btn" role="tab" id="gcatSkin" aria-controls="skinGachaRoot" data-gcat="skin">
           <span class="gcat__ico" aria-hidden="true">✨</span><b>스킨 시뮬레이터</b><small>이벤트 스킨 추첨</small>
         </button>
@@ -49,8 +52,16 @@
   const root = document.getElementById('skinGachaRoot');
   const catBtns = $$('[data-gcat]'); // 이 카테고리 버튼만 (도감의 캐릭터 · 스킨 버튼과 섞이지 않게)
 
+  const CATS = ['gacha', 'collab', 'skin'];
   function selectCat(cat, focus) {
+    if (!CATS.includes(cat)) cat = 'gacha';
     const skin = cat === 'skin';
+    // 뽑기 시뮬레이터 · 콜라보 모집은 같은 화면(js/gacha.js)에서 보여줄 이벤트만 바꿔요
+    if (!skin) {
+      gachaRoot.dataset.mode = cat === 'collab' ? 'collab' : 'normal';
+      if (T.gachaSetMode) T.gachaSetMode(gachaRoot.dataset.mode);
+      gachaRoot.setAttribute('aria-labelledby', cat === 'collab' ? 'gcatCollab' : 'gcatGacha');
+    }
     gachaRoot.hidden = skin;
     root.hidden = !skin;
     catBtns.forEach((b) => {
@@ -69,9 +80,10 @@
   catBtns[0].parentNode.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
-    selectCat(document.activeElement && document.activeElement.dataset.gcat === 'skin' ? 'gacha' : 'skin', true);
+    const at = CATS.indexOf(document.activeElement && document.activeElement.dataset.gcat);
+    selectCat(CATS[(Math.max(at, 0) + (e.key === 'ArrowRight' ? 1 : CATS.length - 1)) % CATS.length], true);
   });
-  selectCat(T.store.get(CAT_KEY, true) === 'skin' ? 'skin' : 'gacha');
+  selectCat(T.store.get(CAT_KEY, true));
 
   /* =====================================================================
    *  설정 — 스킨 추첨 이벤트 (맨 위가 최신)

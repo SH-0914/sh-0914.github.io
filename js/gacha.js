@@ -8,6 +8,7 @@
  *  · 선수 이름 · 사진 · 등급은 캐릭터 도감(관리자가 게시한 내용)에서 가져와요.
  *    도감에 없는 등급(A+ 이하)은 'B등급 선수'처럼 등급으로만 보여요.
  *  · 공 색깔
+ *      보라 공 : EX 콜라보 선수 (인쿠시 · 황연주 · 이예담)
  *      빨간 공 : S+ 선수, 그리고 스킨과 함께 나온 이벤트 픽업 선수 (S · S-)
  *      노란 공 : S ~ S- 선수
  *      흰 공   : 그 밖의 선수
@@ -62,6 +63,8 @@
 
   // 이벤트 — 맨 위가 최신이고, 처음 들어오면 맨 위 이벤트가 보여요.
   //  name       탭 · 제목에 보이는 이름 (제목은 '○○ 모집 배너')
+  //  title      (선택) 제목을 통째로 바꿀 때 — 예) '원더독스 1차 배너 모집'
+  //  collab     true 면 '콜라보 모집' 카테고리에만 보여요 (아니면 '뽑기 시뮬레이터'에만)
   //  period     기간 (선택) 예) '2026.10.22 ~ 11.05'
   //  color      이벤트 대표 색 (탭 · 제목 글자 색)
   //  notInGacha 이번 뽑기에서 안 나오는 선수 (콜로세움 선수 등) — 'S ~ S-' 모집에서 빠져요.
@@ -80,6 +83,26 @@
   //    gauge        픽업 모집 게이지 (GAUGES['S+'] 또는 GAUGES.S)
   //    desc         배너 설명 (선택)
   const EVENTS = [
+    // ── 콜라보: 신인감독 김연경 2 × 원더독스 (확률표 · 게이지는 게임 공지 기준) ──
+    {
+      name: '원더독스 1차 배너 모집',
+      title: '원더독스 1차 배너 모집',
+      collab: true,
+      period: '2026년 11월',
+      color: '#ff7417',
+      notInGacha: ['제니', '강세진', '유리', '아이리스', '서사라 (세터)', '서유나', '이사벨', '로베르토', 'NN', '클레르', '시프', '비올라'],
+      banners: [
+        { title: 'EX 인쿠시 선수 모집', char: '인쿠시', grade: 'EX', color: '#ff7417',
+          pickups: [{ char: '인쿠시', grade: 'EX', rate: 0.5 }, { char: '황연주', grade: 'EX', rate: 0.15 }, { char: '이예담', grade: 'EX', rate: 0.15 }],
+          poolRate: 2.5, lowerRates: [4, 12, 45.2, 28, 7.5], gauge: GAUGES.S },
+        { title: 'EX 황연주 선수 모집', char: '황연주', grade: 'EX', color: '#ffc93d',
+          pickups: [{ char: '황연주', grade: 'EX', rate: 0.5 }, { char: '인쿠시', grade: 'EX', rate: 0.15 }, { char: '이예담', grade: 'EX', rate: 0.15 }],
+          poolRate: 2.5, lowerRates: [4, 12, 45.2, 28, 7.5], gauge: GAUGES.S },
+        { title: 'EX 이예담 선수 모집', char: '이예담', grade: 'EX', color: '#5d8bff',
+          pickups: [{ char: '이예담', grade: 'EX', rate: 0.5 }, { char: '인쿠시', grade: 'EX', rate: 0.15 }, { char: '황연주', grade: 'EX', rate: 0.15 }],
+          poolRate: 2.5, lowerRates: [4, 12, 45.2, 28, 7.5], gauge: GAUGES.S }
+      ]
+    },
     {
       name: '엘리트 스테이지',
       period: '2026년 9월',
@@ -129,10 +152,10 @@
   ];
 
   const TIER_COLORS = { 'A+': '#9b5cff', A: '#4f86ff', B: '#2fb8e0', C: '#5ad45a', D: '#9aa6c4' };
-  const BALL_NAMES = { red: '빨간 공', yellow: '노란 공', white: '흰 공' };
+  const BALL_NAMES = { purple: '보라 공', red: '빨간 공', yellow: '노란 공', white: '흰 공' };
 
-  // 공 색깔 — S+ 와 스킨과 함께 나온 픽업 선수는 빨간 공, S ~ S- 는 노란 공
-  const ballOf = (grade, withSkin) => (grade === 'S+' || withSkin ? 'red' : grade === 'S' || grade === 'S-' ? 'yellow' : 'white');
+  // 공 색깔 — EX(콜라보) 는 보라 공, S+ 와 스킨과 함께 나온 픽업 선수는 빨간 공, S ~ S- 는 노란 공
+  const ballOf = (grade, withSkin) => (grade === 'EX' ? 'purple' : grade === 'S+' || withSkin ? 'red' : grade === 'S' || grade === 'S-' ? 'yellow' : 'white');
 
   /* ---------- 작은 도구들 ---------- */
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -147,7 +170,7 @@
     return Math.random();
   };
 
-  const GRADE_CLASS = { 'S+': 'splus', S: 's', 'S-': 'sminus', 'A+': 'aplus', A: 'a', 'A-': 'aminus', B: 'b', C: 'c', D: 'd' };
+  const GRADE_CLASS = { EX: 'ex', 'S+': 'splus', S: 's', 'S-': 'sminus', 'A+': 'aplus', A: 'a', 'A-': 'aminus', B: 'b', C: 'c', D: 'd' };
   const badge = (g, extra = '') => `<span class="grade grade--${GRADE_CLASS[g] || 'none'}${extra}">${esc(g)}</span>`;
 
   const SHARD_ICON = '<svg class="gx-shard" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1.8 4.6 9.4 12 22.2l7.4-12.8z" fill="currentColor"/><path d="M12 1.8v20.4M4.6 9.4h14.8M8.3 9.4 12 1.8l3.7 7.6" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.1" stroke-linejoin="round"/></svg>';
@@ -180,6 +203,7 @@
     };
   })();
   const BALL_COLORS = {
+    purple: ['#a64dff', '#f4e8ff', '#5a16b8'],
     red: ['#ff4436', '#fff1ea', '#b5122c'],
     yellow: ['#ffc42e', '#fff8e0', '#e88a0c'],
     white: ['#f4f0e6', '#dde4f2', '#a3b2cf']
@@ -246,7 +270,7 @@
     };
   }
   // 기록에 쓰는 짧은 배너 이름 ('S+ 한기태 선수 모집' → '한기태') — 등급은 배지로 따로 보여줘요
-  const shortTitle = (b) => b.title.replace(/\s*선수 모집$/, '').replace(/^S[+-]?\s+/, '');
+  const shortTitle = (b) => b.title.replace(/\s*선수 모집$/, '').replace(/^(EX|S[+-]?)\s+/, '');
   // 배너는 '이벤트 번호:배너 번호' 로 가리켜요 (예: data-pull="0:1")
   const parseRef = (s) => String(s).split(':').map(Number);
   const bannerAt = (ei, bi) => (EVENTS[ei] && EVENTS[ei].banners[bi]) || null;
@@ -331,7 +355,7 @@
   }
 
   // 이번 화면에서 뽑은 기록 (새로고침하면 처음부터) — 보유 선수는 모든 이벤트가 함께 써요
-  const stats = { pulls: 0, red: 0, yellow: 0, shards: 0 };
+  const stats = { pulls: 0, purple: 0, red: 0, yellow: 0, shards: 0 };
   const owned = new Map(); // key → { id, name, grade, ball, image, color, count, skins }
   const perBanner = new Map(); // '이벤트:배너' → { ei, bi, pulls, points: { 재화: 개수 } }
   const gauges = new Map();    // '이벤트:배너' → { value: 모은 게이지, claims: 확정 획득 횟수 }
@@ -382,7 +406,8 @@
     }
     results.forEach((r) => {
       stats.pulls += 1;
-      if (r.ball === 'red') stats.red += 1;
+      if (r.ball === 'purple') stats.purple += 1;
+      else if (r.ball === 'red') stats.red += 1;
       else if (r.ball === 'yellow') stats.yellow += 1;
       addOwned(r);
     });
@@ -492,7 +517,7 @@
     for (const s of slots) {
       if (token !== run) return;
       if (s.classList.contains('is-open')) continue;
-      if (s.dataset.ball === 'red' && !reduceMotion) {
+      if ((s.dataset.ball === 'red' || s.dataset.ball === 'purple') && !reduceMotion) {
         s.classList.add('is-charging');
         await wait(620);
         if (token !== run) return;
@@ -536,7 +561,7 @@
         ${ex.ready ? `<button class="ggauge__claim" type="button" data-claim="${ref}">교환</button>` : ''}` : '');
       if (pts) ret = `<div class="gx__ret"><span class="gx__ret-label">${claimed ? '픽업 스카우트 포인트' : '반환 재화'}</span>${pts}</div>`;
     }
-    const cnt = { red: 0, yellow: 0, white: 0 };
+    const cnt = { purple: 0, red: 0, yellow: 0, white: 0 };
     let shards = 0;
     results.forEach((r) => { cnt[r.ball] += 1; if (r.dup) shards += 1; });
     const hits = [...new Set(results.filter((r) => r.pickup).map((r) => (r.skin ? `${r.skin} 스킨 + ${r.name}` : r.name)))];
@@ -544,7 +569,7 @@
       ${hits.length ? `<p class="gx__hit"><span>${claimed ? '확정 획득!' : 'PICK UP!'}</span>${hits.map((h) => `<b>${esc(h)}</b>`).join(' · ')} 획득</p>` : ''}
       ${ret}
       <div class="gx__sum">
-        ${claimed ? '' : ['red', 'yellow', 'white'].filter((k) => cnt[k]).map((k) => `<span class="gx-pill gx-pill--${k}">${miniBall(k)}${BALL_NAMES[k]} <b>${cnt[k]}</b></span>`).join('')}
+        ${claimed ? '' : ['purple', 'red', 'yellow', 'white'].filter((k) => cnt[k]).map((k) => `<span class="gx-pill gx-pill--${k}">${miniBall(k)}${BALL_NAMES[k]} <b>${cnt[k]}</b></span>`).join('')}
         ${shards ? `<span class="gx-pill gx-pill--shard">${SHARD_ICON}노력의 조각 <b>${shards}</b></span>` : ''}
       </div>
       <div class="gx__acts">
@@ -592,7 +617,8 @@
     last = null;
     const rows = rateRows(ev, b);
     const ex = exchangeState(b);
-    const red = rows.filter((r) => r.ball === 'red').reduce((s, r) => s + r.rate, 0) / 100;
+    const hasPurple = rows.some((r) => r.ball === 'purple');
+    const red = rows.filter((r) => r.ball === 'red' || r.ball === 'purple').reduce((s, r) => s + r.rate, 0) / 100;
     const redIn10 = (1 - Math.pow(1 - red, 10)) * 100;
     panel.style.setProperty('--gc', b.color);
     $('#gxEvent').textContent = ev.name;
@@ -607,7 +633,7 @@
             <span class="gx-rates__rate">${fmtRate(r.rate)}</span>
           </div>`).join('')}
       </div>
-      <p class="gx__note">왼쪽 공 색깔은 모집할 때 보이는 공이에요. 10명 모집에서 빨간 공이 1개 이상 나올 확률은 약 <b>${redIn10.toFixed(1)}%</b>예요.<br>
+      <p class="gx__note">왼쪽 공 색깔은 모집할 때 보이는 공이에요. 10명 모집에서 ${hasPurple ? '보라 공' : '빨간 공'}이 1개 이상 나올 확률은 약 <b>${redIn10.toFixed(1)}%</b>예요.<br>
         ${b.pickups ? '' : '픽업 선수는 선수만 나오거나 스킨 + 선수로 나와요. '}이번 모집에서 나오지 않는 선수: ${esc(notShown(ev, b).join(' · '))}
         ${pointKeys(b).length ? `<br>모집 1명당 반환 재화: ${esc(pointsText(b))}` : ''}
         ${ex ? `<br>${esc(b.char)} 교환: ${esc(POINTS[EXCHANGE_POINT].name)} ${ex.cost}개 (모집 ${ex.pullsTotal}명)` : ''}
@@ -671,14 +697,18 @@
   /* =====================================================================
    *  섹션 (이벤트 탭 · 배너 · 공 색깔 안내 · 내 모집 기록)
    * ===================================================================== */
-  let evIndex = 0;      // 지금 보고 있는 이벤트 (맨 위 = 최신)
+  // 카테고리: 'normal' = 뽑기 시뮬레이터, 'collab' = 콜라보 모집 (js/skingacha.js 의 카테고리 버튼이 바꿔요)
+  let mode = root.dataset.mode === 'collab' ? 'collab' : 'normal';
+  const shownEvents = () => EVENTS.map((ev, i) => i).filter((i) => !!EVENTS[i].collab === (mode === 'collab'));
+  const lastIndex = {}; // 카테고리마다 마지막으로 본 이벤트
+  let evIndex = shownEvents()[0] || 0; // 지금 보고 있는 이벤트 (맨 위 = 최신)
   let artReady = false; // 섹션 가까이 오면 배너 그림을 불러와요
   const section = root.closest('section') || root;
 
   const tabHTML = (ev, i) => `
     <button type="button" class="gtab" role="tab" id="gxTab${i}" aria-controls="gxBans" data-ev="${i}" style="--ev:${ev.color}">
       <b>${esc(ev.name)}</b>
-      ${i === 0 ? '<span class="gtab__new">최신</span>' : ''}
+      ${i === shownEvents()[0] ? '<span class="gtab__new">최신</span>' : ''}
       <small>${ev.period ? `${esc(ev.period)} · ` : ''}배너 ${ev.banners.length}개</small>
     </button>`;
 
@@ -754,7 +784,7 @@
     });
   }
 
-  const gradeRank = (g) => { const i = ['S+', 'S', 'S-', 'A+', 'A', 'A-'].indexOf(g); return i < 0 ? 9 : i; };
+  const gradeRank = (g) => { const i = ['EX', 'S+', 'S', 'S-', 'A+', 'A', 'A-'].indexOf(g); return i < 0 ? 9 : i; };
   const ownChip = (o) => `
     <button type="button" class="gown__chip gown__chip--${o.ball}"${o.id ? ` data-open-char="${esc(o.id)}" title="캐릭터 정보 보기"` : ' disabled'}>
       <span class="gown__ava" style="--cc:${T.safeColor(o.color)}"><img data-gown-img="${esc(o.key)}" alt="" decoding="async"></span>
@@ -777,6 +807,7 @@
       </div>
       <dl class="gstat__nums">
         <div><dt>총 모집</dt><dd>${stats.pulls}<small>명</small></dd></div>
+        ${mode === 'collab' || stats.purple ? `<div class="is-purple"><dt>${miniBall('purple')}보라 공</dt><dd>${stats.purple}</dd></div>` : ''}
         <div class="is-red"><dt>${miniBall('red')}빨간 공</dt><dd>${stats.red}</dd></div>
         <div class="is-yellow"><dt>${miniBall('yellow')}노란 공</dt><dd>${stats.yellow}</dd></div>
         <div class="is-shard"><dt>${SHARD_ICON}노력의 조각</dt><dd>${stats.shards}</dd></div>
@@ -843,7 +874,7 @@
   function renderEvent(animate) {
     const ev = EVENTS[evIndex];
     section.style.setProperty('--ev', ev.color);
-    $('#gxEvTitle').innerHTML = `<span class="gx-west">${esc(ev.name)}</span> 모집 배너`;
+    $('#gxEvTitle').innerHTML = ev.title ? `<span class="gx-west">${esc(ev.title)}</span>` : `<span class="gx-west">${esc(ev.name)}</span> 모집 배너`;
     $$('.gtab', root).forEach((t) => {
       const on = Number(t.dataset.ev) === evIndex;
       t.classList.toggle('is-active', on);
@@ -872,22 +903,49 @@
     }
   }
 
+  // 지금 카테고리의 이벤트 탭만 그려요
+  function renderTabs() {
+    const eb = $('#gxEyebrow');
+    if (eb) eb.innerHTML = mode === 'collab' ? '<i>COLLAB</i>GACHA SIMULATOR' : '<i>EVENT</i>GACHA SIMULATOR';
+    const tabs = $('#gxTabs');
+    if (tabs) tabs.innerHTML = shownEvents().map((i) => tabHTML(EVENTS[i], i)).join('');
+  }
+  // 카테고리 바꾸기 (뽑기 시뮬레이터 ↔ 콜라보 모집) — 모집 기록은 함께 써요
+  let rendered = false;
+  function setMode(m) {
+    const next = m === 'collab' ? 'collab' : 'normal';
+    root.dataset.mode = next;
+    if (next === mode) return;
+    lastIndex[mode] = evIndex;
+    mode = next;
+    const list = shownEvents();
+    evIndex = list.includes(lastIndex[mode]) ? lastIndex[mode] : (list[0] || 0);
+    if (!rendered) return;
+    renderTabs();
+    renderEvent(false);
+    renderStats(); // 콜라보 모집에서는 '보라 공' 칸이 보여요
+  }
+  T.gachaSetMode = setMode;
+
   function renderSection() {
+    rendered = true;
     root.innerHTML = `
       <header class="shead gx-shead" data-reveal>
-        <span class="shead__eyebrow"><i>EVENT</i>GACHA SIMULATOR</span>
+        <span class="shead__eyebrow" id="gxEyebrow"></span>
         <h2 class="shead__title" id="gxEvTitle"></h2>
         <p class="shead__desc">게임 확률표 그대로 1명 · 10명 모집을 해 볼 수 있어요.<br>실제 게임 결과와는 관계없는 재미용 시뮬레이터예요.</p>
       </header>
-      <div class="gtabs" role="tablist" aria-label="이벤트 고르기" data-reveal>${EVENTS.map(tabHTML).join('')}</div>
+      <div class="gtabs" role="tablist" aria-label="이벤트 고르기" id="gxTabs" data-reveal></div>
       <div class="gbans" id="gxBans" role="tabpanel" data-reveal style="--d:60ms"></div>
       <div class="glegend" data-reveal style="--d:80ms">
+        <span>${miniBall('purple')}<b>보라 공</b>EX 콜라보 선수</span>
         <span>${miniBall('red')}<b>빨간 공</b>S+ · 스킨과 함께 나온 이벤트 픽업 선수</span>
         <span>${miniBall('yellow')}<b>노란 공</b>S ~ S- 선수</span>
         <span>${miniBall('white')}<b>흰 공</b>A+ 이하 선수</span>
         <span class="is-shard">${SHARD_ICON}<b>노력의 조각</b>이미 뽑은 선수가 또 나왔을 때</span>
       </div>
       <div class="gstat" id="gxStat" data-reveal style="--d:120ms"></div>`;
+    renderTabs();
     renderEvent(false);
     renderStats();
 
@@ -922,12 +980,14 @@
   root.addEventListener('keydown', (e) => {
     if (!e.target.closest('.gtab')) return;
     const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    const list = shownEvents();
     if (e.key === 'Home' || e.key === 'End') {
       e.preventDefault();
-      selectEvent(e.key === 'Home' ? 0 : EVENTS.length - 1, true);
+      selectEvent(e.key === 'Home' ? list[0] : list[list.length - 1], true);
     } else if (step) {
       e.preventDefault();
-      selectEvent((evIndex + step + EVENTS.length) % EVENTS.length, true);
+      const at = list.indexOf(evIndex);
+      selectEvent(list[(at + step + list.length) % list.length], true);
     }
   });
 

@@ -576,6 +576,20 @@ svg { flex: none; }
 /* 포지션별로 묶여 있으니 카드 위 포지션 표시는 생략 (상세 창에는 그대로 보여요) */
 .cgroup .ccard__pos { display: none; }
 
+/* 콜라보 캐릭터 칸 — 여러 포지션이 섞여 있으니 카드에 포지션을 보여줘요 */
+.cgroup[data-pos="콜라보"] .cgroup__code { background: linear-gradient(135deg, #ffd651, #ffb52e 50%, #ff7417); color: #1b1003; }
+.cgroup[data-pos="콜라보"] .cgroup__head { border-bottom-color: rgba(255, 181, 46, .35); }
+.cgroup[data-pos="콜라보"] .ccard__pos { display: inline-flex; }
+.cgroup__hint {
+  padding: 16px 18px; border-radius: 14px; font-size: 14px; line-height: 1.6; color: var(--ink-2);
+  background: rgba(255, 181, 46, .07); border: 1px dashed rgba(255, 181, 46, .4);
+}
+.ccard__collab {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+  font-family: var(--font-logo); font-size: 13px; letter-spacing: .12em; color: #1b1003;
+  background: linear-gradient(120deg, #ffd651, #ff9a2e);
+}
+
 .cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 18px; }
 @media (max-width: 520px) { .cgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
 
@@ -620,7 +634,7 @@ svg { flex: none; }
 .ccard__name { font-family: var(--font-display); font-weight: 400; font-size: 21px; line-height: 1.25; }
 .ccard__alias { margin-top: 3px; min-height: 1.4em; font-size: 13px; font-weight: 600; color: color-mix(in srgb, var(--c) 55%, #fff); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* 등급 배지 (S+ ~ A-) */
+/* 등급 배지 (EX · S+ ~ A-) */
 .grade {
   --g1: #ffe066; --g2: #ffb020;
   display: inline-grid; place-items: center; min-width: 42px; height: 30px; padding: 0 8px; border-radius: 9px;
@@ -631,6 +645,13 @@ svg { flex: none; }
 }
 .grade--splus { --g1: #fff3a6; --g2: #ff4fa0; background: linear-gradient(120deg, #fff3a6, #ffb020 30%, #ff4fa0 60%, #b06bff 85%, #fff3a6); background-size: 220% 100%; animation: grade-shine 4s linear infinite; }
 .grade--s { --g1: #ffe066; --g2: #ffb020; }
+/* EX — 보라색 최상위 등급 (흰 글자 · 반짝임) */
+.grade--ex {
+  --g1: #e3c8ff; --g2: #8a2be2; color: #fff; text-shadow: 0 1px 2px rgba(40, 0, 80, .6);
+  background: linear-gradient(120deg, #6a1fd1, #a64dff 30%, #e3c8ff 50%, #a64dff 70%, #6a1fd1); background-size: 220% 100%;
+  box-shadow: 0 6px 18px -6px #a64dff, 0 0 0 1px rgba(227, 200, 255, .45) inset, inset 0 1px 0 rgba(255, 255, 255, .5);
+  animation: grade-shine 4s linear infinite;
+}
 .grade--sminus { --g1: #ffc078; --g2: #ff7a2e; }
 .grade--aplus { --g1: #d9bcff; --g2: #9b5cff; }
 .grade--a { --g1: #b3cdff; --g2: #4f86ff; }

@@ -744,7 +744,7 @@ service cloud.firestore {
     },
     characters: {
       title: '캐릭터 섹션',
-      note: '캐릭터 정보(등급 · 별명 · 신규 강조 · 스탯 등)는 캐릭터 카드를 눌러서 편집해요. 목록은 항상 등급순(S+ → A-)으로 보여요. 조합은 들어간 캐릭터의 상세 창마다 보여요.',
+      note: '캐릭터 정보(등급 · 별명 · 신규 강조 · 스탯 등)는 캐릭터 카드를 눌러서 편집해요. 목록은 항상 등급순(EX → S+ → A-)으로 보여요. 조합은 들어간 캐릭터의 상세 창마다 보여요.',
       groups: [
         { title: '섹션 제목', path: 'sections.characters', fields: SECTION_FIELDS },
         { title: '캐릭터 조합', path: '', fields: [
@@ -1271,7 +1271,7 @@ service cloud.firestore {
                 <option value="">미정</option>
                 ${T.POSITIONS.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}
               </select></label>
-            <label class="f"><span>등급 <small class="f__hint">목록은 S+ → A- 순서</small></span>
+            <label class="f"><span>등급 <small class="f__hint">목록은 EX → S+ → A- 순서</small></span>
               <select data-f="grade">
                 <option value="">미정</option>
                 ${T.GRADES.map((g) => `<option value="${esc(g)}">${esc(g)}</option>`).join('')}
@@ -1281,6 +1281,11 @@ service cloud.firestore {
             <input type="checkbox" data-f="isNew">
             <span class="switch__ui" aria-hidden="true"></span>
             <span class="switch__label"><b>신규 캐릭터로 강조</b> — 카드에 NEW 표시 · 메인 화면 맨 위에 소개</span>
+          </label>
+          <label class="switch ed-new">
+            <input type="checkbox" data-f="collab">
+            <span class="switch__ui" aria-hidden="true"></span>
+            <span class="switch__label"><b>콜라보 캐릭터</b> — 캐릭터 목록 맨 위 '콜라보' 칸에 모여요 · 카드에 COLLAB 표시</span>
           </label>
           <div class="f"><span>테마 색상</span>
             <div class="swatches" role="group" aria-label="테마 색상">${swatchesHTML(c.color)}</div>
@@ -1535,15 +1540,16 @@ service cloud.firestore {
       if (k === 'total') {
         const n = parseInt(v, 10);
         c.total = v.trim() === '' || !Number.isFinite(n) ? null : Math.max(0, n);
-      } else if (k === 'isNew') {
-        c.isNew = t.checked;
+      } else if (k === 'isNew' || k === 'collab') {
+        c[k] = t.checked;
       } else {
         c[k] = v;
       }
       if (k === 'name') { $('[data-live="name"]', box).textContent = v || '이름 없음'; refreshVisual(true); }
       if (k === 'image') refreshVisual(state.skinIndex === -1);
       // 등급 · 포지션 · 신규 표시는 목록 순서와 메인 화면 안내에 영향을 줘요
-      if (k === 'grade' || k === 'position' || k === 'isNew' || k === 'name' || k === 'alias') {
+      if (k === 'collab') T.renderChips(); // '콜라보' 필터 버튼이 생기거나 없어져요
+      if (k === 'grade' || k === 'position' || k === 'isNew' || k === 'collab' || k === 'name' || k === 'alias') {
         T.renderCharacters();
         T.updateModalCount();
       } else {
@@ -1806,7 +1812,7 @@ service cloud.firestore {
     const d = state.data;
     const c = {
       id: 'char-' + Date.now().toString(36),
-      name: '새 캐릭터', alias: '', grade: '', isNew: false,
+      name: '새 캐릭터', alias: '', grade: '', isNew: false, collab: false,
       position: state.filter !== 'all' ? state.filter : '',
       color: T.CHAR_COLORS[0][0], image: '', description: '',
       profile: [], stats: {}, total: null, traits: [], skins: []

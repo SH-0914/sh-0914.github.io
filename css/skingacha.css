@@ -5,6 +5,14 @@
 #skinGachaRoot { --ev: #b06bff; }
 /* 맨 위 '뽑기 시뮬레이터 · 스킨 시뮬레이터' 카테고리 모양은 css/style.css 의 .gcat 을 같이 써요 */
 .gcat__btn[data-gcat="skin"].is-active .gcat__ico { background: linear-gradient(135deg, #e2c6ff, #b06bff); }
+/* 뽑기 쪽 카테고리는 3칸 (뽑기 시뮬레이터 · 콜라보 모집 · 스킨 시뮬레이터) */
+.gcat:has([data-gcat="collab"]) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.gcat__btn[data-gcat="collab"].is-active .gcat__ico { background: linear-gradient(135deg, #ffc93d, #ff7417); }
+@media (max-width: 560px) {
+  .gcat:has([data-gcat="collab"]) .gcat__btn { grid-template-columns: 1fr; justify-items: center; text-align: center; row-gap: 4px; padding: 8px 4px; }
+  .gcat:has([data-gcat="collab"]) .gcat__ico { grid-row: auto; }
+  .gcat:has([data-gcat="collab"]) .gcat__btn small { display: none; }
+}
 
 /* 등수 색 */
 .skg-tier--1 { --tc: #ffc94a; }

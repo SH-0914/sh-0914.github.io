@@ -166,7 +166,9 @@
   /* ---------- 고정 목록: 스탯 · 포지션 · 등급 · 캐릭터 색 ---------- */
   const POSITIONS = ['스파이커', '미들블로커', '세터']; // 이 순서로 묶어서 보여줘요
   const POS_CODES = { '스파이커': 'WS', '미들블로커': 'MB', '세터': 'Se' };
-  const GRADES = ['S+', 'S', 'S-', 'A+', 'A', 'A-']; // 앞에 있을수록 먼저 보여요
+  // 콜라보 캐릭터 묶음 — 캐릭터 편집에서 '콜라보 캐릭터'를 켜면 포지션 묶음 대신 맨 위의 이 칸에 모여요
+  const COLLAB = '콜라보';
+  const GRADES = ['EX', 'S+', 'S', 'S-', 'A+', 'A', 'A-']; // 앞에 있을수록 먼저 보여요 (EX = 보라색 최상위 등급)
   const CHAR_COLORS = [
     ['#ff5b22', '주황'], ['#ff3b5c', '빨강'], ['#ff5fa2', '분홍'], ['#b06bff', '보라'], ['#5b7cff', '파랑'],
     ['#32d4ff', '하늘'], ['#2ee6b6', '민트'], ['#5ad45a', '초록'], ['#ffc42e', '노랑'], ['#c7d0e8', '은색']
@@ -205,7 +207,7 @@
     return GRADES.includes(s) ? s : '';
   }
   const gradeRank = (g) => { const i = GRADES.indexOf(g); return i < 0 ? GRADES.length : i; };
-  const gradeClass = (g) => ({ 'S+': 'splus', S: 's', 'S-': 'sminus', 'A+': 'aplus', A: 'a', 'A-': 'aminus' }[g] || 'none');
+  const gradeClass = (g) => ({ EX: 'ex', 'S+': 'splus', S: 's', 'S-': 'sminus', 'A+': 'aplus', A: 'a', 'A-': 'aminus' }[g] || 'none');
 
   function normalize(input) {
     const src = obj(input);
@@ -240,8 +242,9 @@
         id,
         name: str(c.name),
         alias: str(c.alias),           // 별명 · 이명
-        grade: normGrade(c.grade),     // S+ ~ A-
+        grade: normGrade(c.grade),     // EX · S+ ~ A-
         isNew: c.isNew === true,       // 신규 캐릭터 강조
+        collab: c.collab === true,     // 콜라보 캐릭터 (목록 맨 위 '콜라보' 칸에 모여요)
         position: normPosition(c.position),
         color: str(c.color),
         image: str(c.image), description: str(c.description),
@@ -1138,8 +1141,9 @@
   function renderChips() {
     const wrap = $('#posChips');
     const positions = allPositions();
-    if (state.filter !== 'all' && !positions.includes(state.filter)) state.filter = 'all';
-    wrap.innerHTML = [['all', '전체'], ...positions.map((p) => [p, p])]
+    const hasCollab = state.data.characters.some((c) => c.collab);
+    if (state.filter !== 'all' && !positions.includes(state.filter) && !(hasCollab && state.filter === COLLAB)) state.filter = 'all';
+    wrap.innerHTML = [['all', '전체'], ...(hasCollab ? [[COLLAB, COLLAB]] : []), ...positions.map((p) => [p, p])]
       .map(([v, label]) => `<button type="button" class="chip${state.filter === v ? ' is-active' : ''}" data-filter="${esc(v)}" aria-pressed="${state.filter === v}">${esc(label)}</button>`)
       .join('') + '<span class="chips__pill" aria-hidden="true"></span>';
     movePill(false);
@@ -1155,18 +1159,20 @@
     if (!animate) { void pill.offsetWidth; pill.style.transition = ''; }
   }
 
-  // 포지션 묶음(스파이커 → 미들블로커 → 세터 → 미정) 안에서 등급순 (S+ → … → A- → 등급 없음).
+  // 포지션 묶음(스파이커 → 미들블로커 → 세터 → 미정) 안에서 등급순 (EX → S+ → … → A- → 등급 없음).
   // 같은 등급끼리는 관리자가 정한 순서. 상세 창의 이전/다음도 이 순서를 따라요.
   const posRank = (p) => { const i = POSITIONS.indexOf(p); return i < 0 ? POSITIONS.length : i; };
   function visibleList() {
     const q = state.query.trim().toLowerCase();
     const out = state.data.characters.filter((c) => {
-      if (state.filter !== 'all' && c.position !== state.filter) return false;
+      if (state.filter === COLLAB) { if (!c.collab) return false; }
+      else if (state.filter !== 'all' && c.position !== state.filter) return false;
       if (!q) return true;
-      const hay = [c.name, c.alias, c.position, c.grade, ...c.traits.map((t) => `${t.name} ${t.tag}`), ...c.skins.map((s) => s.name)].join(' ').toLowerCase();
+      const hay = [c.name, c.alias, c.position, c.grade, c.collab ? '콜라보 collab' : '', ...c.traits.map((t) => `${t.name} ${t.tag}`), ...c.skins.map((s) => s.name)].join(' ').toLowerCase();
       return hay.includes(q);
     });
-    return out.sort((a, b) => posRank(a.position) - posRank(b.position) || gradeRank(a.grade) - gradeRank(b.grade));
+    // 콜라보 캐릭터가 맨 앞 (콜라보 칸 안에서는 포지션 → 등급 순)
+    return out.sort((a, b) => (b.collab - a.collab) || posRank(a.position) - posRank(b.position) || gradeRank(a.grade) - gradeRank(b.grade));
   }
 
   const gradeBadge = (g, extra = '') => (g ? `<span class="grade grade--${gradeClass(g)}${extra}">${esc(g)}</span>` : '');
@@ -1348,7 +1354,7 @@
       <div class="ccard__inner">
         <div class="ccard__art">
           <img alt="" loading="lazy" decoding="async">
-          <div class="ccard__tags"><span class="ccard__new">NEW</span><span class="ccard__pos"></span></div>
+          <div class="ccard__tags"><span class="ccard__new">NEW</span><span class="ccard__collab">COLLAB</span><span class="ccard__pos"></span></div>
           <span class="ccard__grade"></span>
         </div>
         <div class="ccard__body">
@@ -1380,6 +1386,8 @@
     pos.textContent = c.position;
     pos.hidden = !c.position;
     $('.ccard__new', el).hidden = !c.isNew;
+    $('.ccard__collab', el).hidden = !c.collab;
+    el.classList.toggle('is-collab', c.collab);
     el.classList.toggle('is-new', c.isNew);
     $('.ccard__grade', el).innerHTML = gradeBadge(c.grade);
     $('.ccard__name', el).textContent = c.name || '이름 없음';
@@ -1405,8 +1413,8 @@
     sec.dataset.pos = pos || 'none';
     sec.innerHTML = `
       <header class="cgroup__head">
-        <span class="cgroup__code">${esc(POS_CODES[pos] || '—')}</span>
-        <h3 class="cgroup__name">${esc(pos || '포지션 미정')}</h3>
+        <span class="cgroup__code">${pos === COLLAB ? 'CO' : esc(POS_CODES[pos] || '—')}</span>
+        <h3 class="cgroup__name">${pos === COLLAB ? '콜라보 캐릭터' : esc(pos || '포지션 미정')}</h3>
         <span class="cgroup__count"></span>
       </header>
       <div class="cgrid"></div>`;
@@ -1428,17 +1436,29 @@
     cardEls.forEach((el, id) => { if (!alive.has(id)) { el.remove(); cardEls.delete(id); } });
 
     // 포지션별로 나눠 담기
-    const order = [...POSITIONS, ''];
+    const order = [COLLAB, ...POSITIONS, ''];
     const byPos = new Map(order.map((p) => [p, []]));
-    shownList.forEach((c) => byPos.get(POSITIONS.includes(c.position) ? c.position : '').push(c));
+    shownList.forEach((c) => byPos.get(c.collab ? COLLAB : POSITIONS.includes(c.position) ? c.position : '').push(c));
 
     const shown = new Set();
     order.forEach((pos) => {
       const items = byPos.get(pos);
       const sec = groupFor(pos);
       grid.appendChild(sec);
-      sec.hidden = !items.length;
+      // 콜라보 칸은 비어 있어도 관리자 모드에서는 보여요 (어떻게 넣는지 안내)
+      const showEmptyCollab = pos === COLLAB && state.editing && !state.query.trim() && (state.filter === 'all' || state.filter === COLLAB);
+      sec.hidden = !items.length && !showEmptyCollab;
       $('.cgroup__count', sec).textContent = `${items.length}명`;
+      if (pos === COLLAB) {
+        let hint = $('.cgroup__hint', sec);
+        if (!hint) {
+          hint = document.createElement('p');
+          hint.className = 'cgroup__hint';
+          hint.textContent = '아직 콜라보 캐릭터가 없어요. 캐릭터 카드를 눌러 편집 화면에서 \'콜라보 캐릭터\' 스위치를 켜면 이 칸으로 옮겨져요. (비어 있으면 방문자에게는 이 칸이 보이지 않아요)';
+          $('.cgroup__head', sec).after(hint);
+        }
+        hint.hidden = items.length > 0;
+      }
       const g = $('.cgrid', sec);
       items.forEach((c, i) => {
         let el = cardEls.get(c.id);

@@ -175,6 +175,9 @@
 .gstat__nums dt { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--ink-3); }
 .gstat__nums dd { margin: 2px 0 0; font-family: var(--font-logo); font-size: 28px; line-height: 1.15; font-variant-numeric: tabular-nums; }
 .gstat__nums dd small { margin-left: 3px; font-family: var(--font-sans); font-size: 13px; color: var(--ink-3); }
+.gstat__nums:has(.is-purple) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.gstat__nums .is-purple { border-color: rgba(166, 77, 255, .4); background: rgba(166, 77, 255, .08); }
+.gstat__nums .is-purple dd { color: #c99bff; }
 .gstat__nums .is-red { border-color: rgba(255, 68, 54, .35); background: rgba(255, 68, 54, .06); }
 .gstat__nums .is-red dd { color: #ff7a6e; }
 .gstat__nums .is-yellow { border-color: rgba(255, 196, 46, .3); background: rgba(255, 196, 46, .05); }
@@ -220,6 +223,7 @@
 }
 .gown__chip:not(:disabled):hover { transform: translateY(-2px); background: rgba(255, 255, 255, .07); }
 .gown__chip:disabled { cursor: default; }
+.gown__chip--purple { border-color: rgba(166, 77, 255, .6); }
 .gown__chip--red { border-color: rgba(255, 68, 54, .5); }
 .gown__chip--yellow { border-color: rgba(255, 196, 46, .4); }
 .gown__ava { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex: none; background: color-mix(in srgb, var(--cc) 30%, #0b1328); }
@@ -231,7 +235,7 @@
 
 @media (max-width: 640px) {
   .gstat { padding: 16px; }
-  .gstat__nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gstat__nums, .gstat__nums:has(.is-purple) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* 도감에 없는 등급 배지 (B · C · D) */
@@ -282,6 +286,7 @@
 .gx__sum { display: flex; flex-wrap: wrap; gap: 8px; }
 .gx-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 999px; font-size: 13.5px; font-weight: 700; color: var(--ink-2); background: rgba(255, 255, 255, .05); border: 1px solid var(--line); }
 .gx-pill b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.gx-pill--purple { border-color: rgba(166, 77, 255, .5); background: rgba(166, 77, 255, .12); }
 .gx-pill--red { border-color: rgba(255, 68, 54, .45); background: rgba(255, 68, 54, .1); }
 .gx-pill--yellow { border-color: rgba(255, 196, 46, .4); background: rgba(255, 196, 46, .08); }
 .gx-pill--shard { border-color: rgba(180, 140, 255, .4); background: rgba(180, 140, 255, .08); padding-left: 10px; }
@@ -315,6 +320,7 @@
 }
 
 .gslot { --bc: #c7d0e8; position: relative; min-width: 0; perspective: 900px; }
+.gslot--purple { --bc: #a64dff; }
 .gslot--red { --bc: #ff3b30; }
 .gslot--yellow { --bc: #ffc42e; }
 
@@ -350,7 +356,7 @@
   -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 75%); mask-image: radial-gradient(closest-side, #000 20%, transparent 75%);
   transform: translate(-50%, -50%) scale(.4);
 }
-.gslot--red.is-open .gslot__fx::after, .gslot--yellow.is-open .gslot__fx::after { animation: gx-rays 1.1s var(--ease) both; }
+.gslot--purple.is-open .gslot__fx::after, .gslot--red.is-open .gslot__fx::after, .gslot--yellow.is-open .gslot__fx::after { animation: gx-rays 1.1s var(--ease) both; }
 
 .gcard {
   --cc: var(--accent);
@@ -368,6 +374,15 @@
   box-shadow: 0 0 30px -6px rgba(255, 59, 48, .85);
 }
 .gslot.is-open .gcard--red { animation: gx-flip .6s var(--ease) .08s both, new-border 4s linear infinite; }
+/* 보라 공 (EX 콜라보 선수) — 빨간 공처럼 테두리가 돌아요 */
+.gcard--purple {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(180deg, var(--panel-2), var(--panel)) padding-box,
+    conic-gradient(from var(--ang), #6a1fd1, #c99bff, #a64dff, #f4e8ff, #6a1fd1) border-box;
+  box-shadow: 0 0 30px -6px rgba(166, 77, 255, .9);
+}
+.gslot.is-open .gcard--purple { animation: gx-flip .6s var(--ease) .08s both, new-border 4s linear infinite; }
 
 .gcard__art {
   position: relative; aspect-ratio: 3 / 4; overflow: hidden;
