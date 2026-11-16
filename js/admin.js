@@ -1251,6 +1251,7 @@ service cloud.firestore {
     if (totalInp) totalInp.placeholder = `자동 (${sum})`;
   }
 
+  const REC_WORDS = { max: 'MAX', free: '자유', rest: '남은', base: '기본' };
   function renderForm(target, c) {
     const defs = state.data.statDefs;
     target.innerHTML = `
@@ -1317,6 +1318,19 @@ service cloud.firestore {
                 <input type="range" min="0" max="${d.max}" step="1" data-stat="${esc(d.key)}" data-end="min" aria-label="${esc(d.name)} 최소 슬라이더">
                 <input type="range" min="0" max="${d.max}" step="1" data-stat="${esc(d.key)}" data-end="max" aria-label="${esc(d.name)} 최대 슬라이더">
               </div>
+              <div class="ed-rec">
+                <span>추천 스탯</span>
+                <select class="ed-rec__ord" data-stat-order="${esc(d.key)}" aria-label="${esc(d.name)} 투자 순서">
+                  <option value="">순서 없음</option>
+                  ${defs.map((x, i) => `<option value="${i + 1}">${i + 1}순위</option>`).join('')}
+                </select>
+                <input class="num" type="text" inputmode="numeric" maxlength="5" data-stat-rec="${esc(d.key)}" placeholder="—" aria-label="${esc(d.name)} 추천 스탯 (숫자 · MAX · 자유 · 기본)">
+                <button class="ed-btn ed-rec__max" type="button" data-rec-set="max" data-rec-key="${esc(d.key)}">MAX</button>
+                <button class="ed-btn ed-rec__rest" type="button" data-rec-set="rest" data-rec-key="${esc(d.key)}">남은 포인트 전부</button>
+                <button class="ed-btn ed-rec__free" type="button" data-rec-set="free" data-rec-key="${esc(d.key)}">자유 분배</button>
+                <button class="ed-btn ed-rec__base" type="button" data-rec-set="base" data-rec-key="${esc(d.key)}">기본 유지</button>
+                <small class="f__hint">순서 = 어느 스탯부터 찍을지 · 숫자 · MAX(최대까지) · 남은 포인트 전부(이 스탯에 다) · 자유 분배(취향대로 나눠서) · 기본 유지(안 찍음) · 비우면 표시 안 함</small>
+              </div>
             </div>`).join('') : '<p class="ed__empty">스탯 항목이 없어요. 아래 도구 막대의 \'스탯 · 포지션\'에서 추가하세요.</p>'}
           <div class="ed-total">
             <label for="edTotal">총합 스테이터스 <small class="f__hint">비워두면 최대값 합계로 자동 표시</small></label>
@@ -1362,6 +1376,14 @@ service cloud.firestore {
     $$('[data-stat]', target).forEach((inp) => {
       const s = c.stats[inp.dataset.stat] || { min: 0, max: 0 };
       inp.value = s[inp.dataset.end];
+    });
+    $$('[data-stat-rec]', target).forEach((inp) => {
+      const s = c.stats[inp.dataset.statRec];
+      inp.value = s && s.rec != null ? (REC_WORDS[s.rec] || s.rec) : '';
+    });
+    $$('[data-stat-order]', target).forEach((sel) => {
+      const s = c.stats[sel.dataset.statOrder];
+      sel.value = s && s.order ? String(s.order) : '';
     });
     defs.forEach((d) => syncStatRow($(`[data-stat-row="${cssEsc(d.key)}"]`, target), d, c.stats[d.key] || { min: 0, max: 0 }));
     $('[data-live="name"]', target).textContent = c.name || '이름 없음';
@@ -1559,6 +1581,31 @@ service cloud.firestore {
       return;
     }
 
+    // 투자 순서 (1순위 → 2순위 …)
+    if (t.dataset.statOrder) {
+      const key = t.dataset.statOrder;
+      const s = c.stats[key] || (c.stats[key] = { min: 0, max: 0, rec: null, order: null });
+      s.order = t.value ? Number(t.value) : null;
+      T.persist();
+      return;
+    }
+
+    // 추천 스탯 — 비우면 표시 안 함
+    if (t.dataset.statRec) {
+      const def = state.data.statDefs.find((d) => d.key === t.dataset.statRec);
+      if (!def) return;
+      const s = c.stats[def.key] || (c.stats[def.key] = { min: 0, max: 0, rec: null });
+      const raw = t.value.trim();
+      const v = parseInt(raw, 10);
+      if (/^m/i.test(raw)) s.rec = 'max';               // 'MAX' (최대까지 다 찍기)
+      else if (/^(자|f)/i.test(raw)) s.rec = 'free';    // '자유' (자유 분배)
+      else if (/^(남|나|r)/i.test(raw)) s.rec = 'rest'; // '남은' (남은 포인트 전부)
+      else if (/^(기|b)/i.test(raw)) s.rec = 'base';    // '기본' (기본 유지)
+      else s.rec = raw === '' || !Number.isFinite(v) ? null : T.clamp(v, 0, def.max);
+      T.persist();
+      return;
+    }
+
     if (t.dataset.stat) {
       const def = state.data.statDefs.find((d) => d.key === t.dataset.stat);
       if (!def) return;
@@ -1642,6 +1689,17 @@ service cloud.firestore {
   box.addEventListener('click', (e) => {
     if (!state.editing) return;
     const c = T.current();
+    // 추천 스탯 'MAX'(최대까지 다 찍기) · '자유 분배'(남은 포인트를 취향대로) 버튼
+    const recSet = e.target.closest('[data-rec-set]');
+    if (recSet && c) {
+      const key = recSet.dataset.recKey;
+      const s = c.stats[key] || (c.stats[key] = { min: 0, max: 0, rec: null });
+      s.rec = recSet.dataset.recSet;
+      const inp = $(`[data-stat-rec="${cssEsc(key)}"]`, box);
+      if (inp) inp.value = REC_WORDS[s.rec] || '';
+      T.persist();
+      return;
+    }
     const b = e.target.closest('button');
     if (!c || !b) return;
 

@@ -234,7 +234,21 @@
         a = clamp(Math.round(a), 0, d.max);
         b = clamp(Math.round(b), 0, d.max);
         if (b < a) [a, b] = [b, a];
-        stats[d.key] = { min: a, max: b };
+        // 추천 스탯 (관리자가 직접 정한 값) — 비어 있으면 null 이고 표시하지 않아요.
+        // 'max' 는 '최대까지 다 찍기' (게임처럼 MAX 로 표시하고, 최대값이 바뀌어도 따라가요)
+        // 'free' 는 '자유 분배' (MAX 를 찍고 남은 포인트를 취향대로 — 한 점을 정하지 않아요)
+        // 'rest' 는 '남은 포인트 전부' (남은 포인트를 이 스탯 하나에 다 넣기)
+        const rawRec = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw.rec : null;
+        const r = rawRec != null && rawRec !== '' ? Number(rawRec) : NaN;
+        // 'base' 는 '기본 유지' (포인트를 안 찍고 최소값 그대로)
+        const recWord = String(rawRec).toLowerCase();
+        // order 는 투자 순서 (1 → 2 → 3 …) — 없으면 null
+        const ord = raw && typeof raw === 'object' && !Array.isArray(raw) ? Number(raw.order) : NaN;
+        stats[d.key] = {
+          min: a, max: b,
+          rec: ['max', 'free', 'rest', 'base'].includes(recWord) ? recWord : Number.isFinite(r) ? clamp(Math.round(r), 0, d.max) : null,
+          order: Number.isInteger(ord) && ord >= 1 && ord <= 9 ? ord : null
+        };
       });
       const totalNum = Number(c.total);
       const total = c.total == null || c.total === '' || !Number.isFinite(totalNum) ? null : Math.max(0, Math.round(totalNum));
@@ -329,6 +343,16 @@
   const statSum = (c) => state.data.statDefs.reduce((s, d) => s + statHigh(c, d.key), 0);
   // 총합 스테이터스: 직접 입력한 값이 있으면 그 값, 없으면 최대값 합계
   const statTotal = (c) => (c.total != null ? c.total : statSum(c));
+  // 추천 스탯 숫자 ('max' 는 그 스탯의 최대값) · 최대값까지 다 찍었는지
+  // 한 점이 아니라 구간으로 보여주는 추천 (자유 분배 · 남은 포인트 전부)
+  const REC_RANGE = { free: '자유 분배', rest: '남은 포인트 전부' };
+  const recRange = (s) => (s && REC_RANGE[s.rec] ? s.rec : '');
+  const recValue = (s) => (!s || s.rec == null || recRange(s) ? null : s.rec === 'max' ? s.max : s.rec === 'base' ? s.min : s.rec);
+  const recIsFree = (s) => !!recRange(s);
+  const recIsBase = (s) => !!s && s.rec === 'base';
+  const recIsMax = (s) => !recIsBase(s) && recValue(s) != null && recValue(s) >= s.max;
+  // 투자 순서 번호 배지 (1 → 2 → 3)
+  const orderMark = (s) => (s && s.order ? `<i class="srec__ord">${s.order}</i>` : '');
   const getChar = (id) => state.data.characters.find((c) => c.id === id) || null;
   const current = () => (state.openId === null ? null : getChar(state.openId));
   const rankOf = (c, key) => 1 + state.data.characters.filter((o) => statHigh(o, key) > statHigh(c, key)).length;
@@ -1661,23 +1685,53 @@
       : '';
     const num = (v) => `<b data-count-to="${v}">${v}</b>`;
     const range = (s) => (s.min === s.max ? num(s.max) : `${num(s.min)}<i>~</i>${num(s.max)}`);
+    // 추천 스탯: 하나라도 정해져 있으면 막대(최소 ~ 최대) 위에 추천 지점을 표시해요. 막대 눈금은 0 ~ 스탯 한도(300)
+    const hasRec = defs.some((d) => c.stats[d.key] && c.stats[d.key].rec != null);
+    const pct = (v, d) => `${clamp((v / (d.max || 1)) * 100, 0, 100).toFixed(2)}%`;
+    const recBar = (s, d) => `
+              <div class="srec${recRange(s) ? ` is-${recRange(s)}` : ''}" aria-hidden="true">
+                <span class="srec__range" style="left:${pct(s.min, d)};width:calc(${pct(s.max, d)} - ${pct(s.min, d)})">${recIsFree(s) ? `<b class="srec__free">${orderMark(s)}${sameOrder(s) ? '<i class="srec__tie">공동</i>' : ''}${REC_RANGE[recRange(s)]}</b>` : ''}</span>
+                ${recValue(s) != null ? `<span class="srec__mark${recIsMax(s) ? ' is-max' : ''}${recIsBase(s) ? ' is-base' : ''}" style="left:${pct(recValue(s), d)}"><b>${orderMark(s)}${sameOrder(s) ? '<i class="srec__tie">공동</i>' : ''}${recIsMax(s) ? `MAX <small>/ ${s.max}</small>` : recIsBase(s) ? '기본 유지' : `추천 ${recValue(s)}`}</b></span>` : ''}
+              </div>`;
+    const recSum = defs.reduce((sum, d) => sum + (recValue(c.stats[d.key]) || 0), 0);
+    // 합계 옆 '+ 남은 포인트 전부' · '+ 자유 분배'
+    const rangeKinds = [...new Set(defs.map((d) => recRange(c.stats[d.key])).filter(Boolean))];
+    // 투자 순서 요약 (예: 공격력 → 점프력 → 스피드). 순위가 같으면 '공격력 = 점프력' 처럼 묶어요
+    const ordered = defs.filter((d) => c.stats[d.key] && c.stats[d.key].order).sort((a, b) => c.stats[a.key].order - c.stats[b.key].order);
+    const orderGroups = [];
+    ordered.forEach((d) => {
+      const o = c.stats[d.key].order;
+      const last = orderGroups[orderGroups.length - 1];
+      if (last && last.order === o) last.defs.push(d); else orderGroups.push({ order: o, defs: [d] });
+    });
+    const sameOrder = (s) => !!s && !!s.order && ordered.filter((d) => c.stats[d.key].order === s.order).length > 1;
+    const orderChip = (d) => `<b style="--sc:${d.color}">${statIcon(d.icon)}${esc(d.name)}</b>`;
+    const orderLine = ordered.length > 1 ? `
+        <p class="srec-order"><span>추천 투자 순서</span>${orderGroups.map((g) => (g.defs.length > 1
+          ? `<span class="srec-order__tie" title="같은 순위">${g.defs.map(orderChip).join('<i aria-hidden="true">=</i>')}<em>공동 ${g.order}순위</em></span>`
+          : orderChip(g.defs[0]))).join('<i aria-hidden="true">→</i>')}</p>` : '';
     const stats = defs.length ? `
       <section class="block">
-        <div class="block__head"><h3 class="block__title">스탯</h3></div>
-        <div class="srows">
+        <div class="block__head"><h3 class="block__title">스탯</h3>${hasRec ? '<span class="srec-legend"><i class="srec-legend__range"></i>최소 ~ 최대<i class="srec-legend__mark"></i>추천 스탯</span>' : ''}</div>${orderLine}
+        <div class="srows${hasRec ? ' srows--rec' : ''}">
           ${defs.map((d, i) => {
-            const s = c.stats[d.key] || { min: 0, max: 0 };
+            const s = c.stats[d.key] || { min: 0, max: 0, rec: null };
             return `<div class="srow" style="--sc:${d.color};--i:${i}">
               ${statIcon(d.icon)}
               <span class="srow__name">${esc(d.name)}</span>
               <span class="srow__val">${range(s)}</span>
-              ${n > 1 ? `<span class="srow__tip">최대값 기준 ${n}명 중 ${rankOf(c, d.key)}위</span>` : ''}
+              ${hasRec ? recBar(s, d) : ''}
+              ${n > 1 ? `<span class="srow__tip">최대값 기준 ${n}명 중 ${rankOf(c, d.key)}위${s.order ? ` · ${sameOrder(s) ? '공동 ' : ''}${s.order}순위` : ''}${recIsFree(s) ? ` · ${REC_RANGE[recRange(s)]}` : recIsBase(s) ? ' · 기본 유지' : recValue(s) != null ? ` · 추천 ${recIsMax(s) ? 'MAX' : recValue(s)}` : ''}</span>` : ''}
             </div>`;
           }).join('')}
           <div class="srow srow--total" style="--i:${defs.length}">
             <span class="srow__name">총합 스테이터스</span>
             <span class="srow__val">${num(statTotal(c))}</span>
           </div>
+          ${hasRec ? `<div class="srow srow--total srow--rec" style="--i:${defs.length + 1}">
+            <span class="srow__name">추천 스탯 합계</span>
+            <span class="srow__val">${num(recSum)}${rangeKinds.length ? `<small class="srow__plus">+ ${rangeKinds.map((k) => REC_RANGE[k]).join(' · ')}</small>` : ''}</span>
+          </div>` : ''}
         </div>
       </section>` : '';
     const traits = `
